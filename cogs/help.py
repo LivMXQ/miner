@@ -17,9 +17,9 @@ class MyHelp(commands.HelpCommand):
         striplist.append(fullstring)
       clean_signature = " ".join(striplist)
     
-      return f'{self.clean_prefix}{command} {clean_signature}'
+      return f'{self.context.clean_prefix}{command} {clean_signature}'
     else:
-      return f'{self.clean_prefix}{command} {command.signature}'
+      return f'{self.context.clean_prefix}{command} {command.signature}'
       
     
   async def send_command_help(self, command):

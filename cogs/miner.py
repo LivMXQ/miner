@@ -27,7 +27,7 @@ class Miner(commands.Cog):
     view = View()
     view.add_item(attackbtn)
     view.add_item(talkbtn)
-    await ctx.reply(embed=embed, view=view)    
+    await ctx.send(embed=embed, view=view)    
 
     
     '''users = await user.get_users()

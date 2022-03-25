@@ -8,6 +8,13 @@ class ForNerds(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
 
+  @commands.command(name="test")
+  @commands.is_owner()
+  async def test(self, ctx):
+    await ctx.message.delete()
+    await ctx.send("Fuck privilaged intents im back baby")
+    
+
   @commands.command(name="resourcestest", aliases=["rct"])
   @commands.is_owner()
   async def resourcestest(self, ctx):
