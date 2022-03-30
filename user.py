@@ -1,7 +1,10 @@
 import discord
 import json
 
-
+async def get_cooldown(user):
+  users = await get_users()
+  piclist = await get_user_data(user, "pickaxe")
+  
   
 async def create_account(user):
   users = await get_users()
@@ -9,7 +12,7 @@ async def create_account(user):
     return False
   else:
     users[str(user.id)] = {}
-    users[str(user.id)]["pickaxe"] = ["Wooden_Pickaxe", [None]]
+    users[str(user.id)]["pickaxe"] = ["Wooden_Pickaxe", [None], 60]
     users[str(user.id)]["y"] = 64
     users[str(user.id)]["inventory"] = []
     

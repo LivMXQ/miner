@@ -8,6 +8,9 @@ class MyHelp(commands.HelpCommand):
   def __init__(self):
     super().__init__(command_attrs={'help': 'Shows help about the bot, a command, or a category'})
 
+  def get_destination(self):
+    return self.context
+
   def get_command_signature(self, command):
     if "=" in command.signature:
       siglist = command.signature.split(" ")
@@ -36,28 +39,27 @@ class MyHelp(commands.HelpCommand):
       embed.add_field(name="Aliases", value=f"-{alias}", inline=False)
     embed.set_footer(text="Usage Syntax: <required> [optional]")
 
-    channel = self.get_destination()
-    await channel.send(embed=embed)
+    ctx = self.get_destination()
+    await ctx.send(embed=embed)
 
     
   async def send_bot_help(self, mapping):
-    channel = self.get_destination()
-    embed = discord.Embed(title="Help", color=resource.random_color())
-    for cog, commands in mapping.items():
-      filtered = await self.filter_commands(commands, sort=True)
+    ctx = self.get_destination()
+    embed = discord.Embed(title=f"{ctx.guild} Help", color=resource.random_color())
+    for cog, command in mapping.items():
+      filtered = await self.filter_commands(command, sort=True)
       command_signatures = [self.get_command_signature(c) for c in filtered]
       if command_signatures:
         cog_name = getattr(cog, "qualified_name", "No Category")
         embed.add_field(name=cog_name, value="\n".join(command_signatures), inline=False)
-    await channel.send(embed=embed)
+    await ctx.author.send(embed=embed)
 
 
   async def send_error_message(self, error):
     embed = discord.Embed(title="Error", description=error, color=discord.Colour.red())
-    channel = self.get_destination()
-    await channel.send(embed=embed)
-    time.sleep(5)
-    await channel.purge(limit=2)
+    ctx = self.get_destination()
+    await ctx.send(embed=embed)
+
     
 
 class Help(commands.Cog):

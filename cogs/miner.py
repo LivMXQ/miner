@@ -10,9 +10,7 @@ class Miner(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
 
-  async def minerng(self):
-    event = random.choices(resource.lootable.keys())
-    
+
   @commands.command(name="distribution", aliases=["dist"])
   async def distrubution(self, ctx):
     embed = discord.Embed(title="Miner Ore Distributing Chart")
@@ -22,25 +20,34 @@ class Miner(commands.Cog):
   @commands.command(name="mine", aliases=["dig"])
   async def mine(self, ctx):
     embed = discord.Embed(title=f"{ctx.author.name} goes mining!")
-    attackbtn = Button(label="Attack", style=discord.ButtonStyle.primary, emoji="💥")
-    talkbtn = Button(label="Talk", style=discord.ButtonStyle.primary, emoji="👶")
+    embed.add_field(name="current y-level", value=await user.get_user_data(ctx.author, "y"))
+    minebtn = Button(label="Mine!", style=discord.ButtonStyle.primary, emoji="⛏")
+    returnbtn = Button(label="Return to base", style=discord.ButtonStyle.primary, emoji="🏡")
     view = View()
-    view.add_item(attackbtn)
-    view.add_item(talkbtn)
+    view.add_item(minebtn)
+    view.add_item(returnbtn)
     await ctx.send(embed=embed, view=view)    
 
-    
-    '''users = await user.get_users()
-    allitems = resource.get_all_items()
-    if str(ctx.author.id) in users:
-      loot = "".join(await resource.mine(await user.get_user_data(ctx.author, "y")))
-      embed = discord.Embed(title=f"{ctx.author.name}'s booty")
-      embed.add_field(value=loot, name=allitems[loot])
-      embed.set_footer(text="Items are NOT added to inv YET")
-      await ctx.send(embed=embed)
-    else:
-      await user.create_account(ctx.author)
-      await ctx.send("Created a Miner account for you!")'''
+    async def mineloot(interaction):
+      if interaction.user == ctx.author:
+        users = await user.get_users()
+        allitems = resource.get_all_items()
+        if str(ctx.author.id) in users:
+          loot = "".join(await resource.mine(await user.get_user_data(ctx.author, "y")))
+          embed = discord.Embed(title=f"{ctx.author.name}'s booty")
+          embed.add_field(value=loot, name=allitems[loot])
+          embed.set_footer(text="Items are NOT added to inv YET")
+          await ctx.send(embed=embed)
+          minebtn.disabled = True
+          returnbtn.disabled = True
+          await interaction.response.edit_message(view=view)
+        else:
+          await user.create_account(ctx.author)
+          await ctx.send("Created a Miner account for you!")
+      else:
+        await interaction.response.send_message("Thats not your miner bro", ephemeral=True)
+
+    minebtn.callback = mineloot
     
 
   @commands.command(name="info")

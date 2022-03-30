@@ -30,4 +30,4 @@ try:
   keep_alive()
   bot.run(os.getenv('TOKEN'))
 except:
-  print("crap")
+  os.system("kill 1")
