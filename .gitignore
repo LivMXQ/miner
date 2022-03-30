@@ -1,6 +1,7 @@
-__pycashe__/
+__pycache__/
 cogs/__pycashe
 venv/
+.gitignore
 .replit
 replit.nix
 poetry.lock
