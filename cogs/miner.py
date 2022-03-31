@@ -34,13 +34,20 @@ class Miner(commands.Cog):
         allitems = resource.get_all_items()
         if str(ctx.author.id) in users:
           loot = "".join(await resource.mine(await user.get_user_data(ctx.author, "y")))
-          embed = discord.Embed(title=f"{ctx.author.name}'s booty")
-          embed.add_field(value=loot, name=allitems[loot])
-          embed.set_footer(text="Items are NOT added to inv YET")
-          await ctx.send(embed=embed)
-          minebtn.disabled = True
-          returnbtn.disabled = True
-          await interaction.response.edit_message(view=view)
+          if loot == "event":
+            embed = discord.Embed(title=f"{ctx.author.name}'s event")
+            await ctx.send(embed=embed)
+            minebtn.disabled = True
+            returnbtn.disabled = True
+            await interaction.response.edit_message(view=view)
+          else:
+            embed = discord.Embed(title=f"{ctx.author.name}'s booty")
+            embed.add_field(value=loot, name=allitems[loot])
+            embed.set_footer(text="Items are NOT added to inv YET")
+            await ctx.send(embed=embed)
+            minebtn.disabled = True
+            returnbtn.disabled = True
+            await interaction.response.edit_message(view=view)
         else:
           await user.create_account(ctx.author)
           await ctx.send("Created a Miner account for you!")
