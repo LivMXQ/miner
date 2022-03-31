@@ -4,7 +4,12 @@ import json
 async def get_cooldown(user):
   users = await get_users()
   piclist = await get_user_data(user, "pickaxe")
+
+async def get_drop_multipler():
+  users = await get_users()
   
+  
+
   
 async def create_account(user):
   users = await get_users()
@@ -19,7 +24,17 @@ async def create_account(user):
     with open("user.json", "w") as f:
       json.dump(users,f)
       return True
- 
+
+async def update_user_data(user, type, value):
+  users = await get_users()
+  if str(user.id) not in users:
+    return False
+  else:
+    users[str(user.id)][type] = value
+    with open("user.json", "w") as f:
+      json.dump(users,f)
+      return True
+
 async def get_user_data(user, type):
   users = await get_users()
   if str(user.id) not in users:
