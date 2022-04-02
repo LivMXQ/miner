@@ -35,7 +35,7 @@ category = {
 async def mine(y):
   choice = "".join(random.choices(list(event.keys()), get_dict_value(event)))
   if choice == "event":
-    return "event"
+    return ["event"]
   elif choice =="ore":
     if y <= 64 and y > 48:
       loot = random.choices(list(oreloot64.keys()), get_dict_value(oreloot64))

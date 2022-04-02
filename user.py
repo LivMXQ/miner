@@ -1,51 +1,34 @@
 import discord
 import json
+from replit import db
 
 async def get_cooldown(user):
-  users = await get_users()
-  piclist = await get_user_data(user, "pickaxe")
-
+  pass
 async def get_drop_multipler():
-  users = await get_users()
-  
-  
-
+  pass
   
 async def create_account(user):
-  users = await get_users()
-  if str(user.id) in users:
-    return False
-  else:
-    users[str(user.id)] = {}
-    users[str(user.id)]["pickaxe"] = ["Wooden_Pickaxe", [None], 60]
-    users[str(user.id)]["y"] = 64
-    users[str(user.id)]["inventory"] = []
-    
-    with open("user.json", "w") as f:
-      json.dump(users,f)
-      return True
-
+  db["users"][str(user.id)] = {"y":64, "inventory":{}, "pickaxe":["wooden_pickaxe", {}, 60]}
+  role = discord.utils.get(user.guild.roles, name="minor")
+  await user.add_roles(role)
+  return True
+ 
 async def update_user_data(user, type, value):
-  users = await get_users()
-  if str(user.id) not in users:
-    return False
+  if str(user.id) in db["users"].keys():
+    db["users"][str(user.id)][type] = value
+    return True
   else:
-    users[str(user.id)][type] = value
-    with open("user.json", "w") as f:
-      json.dump(users,f)
-      return True
-
-async def get_user_data(user, type):
-  users = await get_users()
-  if str(user.id) not in users:
     return False
-  else:
-    value = users[str(user.id)][type]
-    return value
-    
   
-async def get_users():
-  with open("user.json", "r") as f:
-    users = json.load(f)
+async def get_user_data(user, type):
+  if str(user.id) in db["users"].keys():
+    value = db["users"][str(user.id)][type]
+    return value
+  else:
+    return None
+  
+  
+    
 
-  return users
+
+    

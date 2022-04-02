@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext import commands
 from keep_alive import keep_alive
+from replit import db
 
 '''afsarf'''
 bot = commands.Bot(command_prefix=';', case_insensitive=True, intents=discord.Intents.all())

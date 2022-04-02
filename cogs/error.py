@@ -31,7 +31,8 @@ class Error(commands.Cog):
       
     else:
       await ctx.message.delete(delay=5)
-      message = f"! Something went wrong while running the command! {error}"
+      message = f"! Something went wrong while running the command ):"
+      print(error)
       await ctx.send(content=message)
 
 def setup(bot: commands.Bot):
