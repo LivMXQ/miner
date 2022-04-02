@@ -14,14 +14,14 @@ async def create_account(user):
   return True
  
 async def update_user_data(user, type, value):
-  if str(user.id) in db["users"].keys():
+  if str(user.id) in db["users"]:
     db["users"][str(user.id)][type] = value
     return True
   else:
     return False
   
 async def get_user_data(user, type):
-  if str(user.id) in db["users"].keys():
+  if str(user.id) in db["users"]:
     value = db["users"][str(user.id)][type]
     return value
   else:

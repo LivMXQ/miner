@@ -32,48 +32,54 @@ class Miner(commands.Cog):
     await ctx.send(embed=embed, view=view)   
 
     async def configcb(interaction):
-      embed = discord.Embed(title=f"{ctx.author.name}'s mining settings")
-      await ctx.send(embed=embed)
-
-    async def returntobasecb(interaction):
-      await interaction.response.send_message("Quack")
-
-    async def minecb(interaction):
-      if str(ctx.author.id) in db["users"].keys():
-        await ctx.send("Working on it (:")
-      else:
-        await user.create_account(ctx.author)
-        await ctx.send("Created a Miner for you!")
-        
-
-
-    async def mineloot(interaction, direction):
       if interaction.user == ctx.author:
-        users = await user.get_users()
-        allitems = resource.get_all_items()
-        if str(ctx.author.id) in users:
-          loot = "".join(await resource.mine(await user.get_user_data(ctx.author, "y")))
-          if loot == "event":
-            embed = discord.Embed(title=f"{ctx.author.name}'s event", color=discord.Colour.gold())
-            await ctx.send(embed=embed)
-            minebtn.disabled = True
-            returnbtn.disabled = True
-            await interaction.response.edit_message(view=view)
-          else:
-            embed = discord.Embed(title=f"{ctx.author.name}'s booty", color=discord.Colour.green())
-            embed.add_field(value=loot, name=allitems[loot])
-            embed.set_footer(text="Items are NOT added to inv YET")
-            await ctx.send(embed=embed)
-            minebtn.disabled = True
-            returnbtn.disabled = True
-            await interaction.response.edit_message(view=view)
+        if str(ctx.author.id) in db["users"]:
+          await ctx.send("Working on it (:")
+          minebtn.disabled = True
+          returnbtn.disabled = True
+          configbtn.disabled = True
+          await interaction.response.edit_message(view=view)
         else:
           await user.create_account(ctx.author)
-          await ctx.send("Created a Miner account for you!")
+          await ctx.send("Created a Miner for you!")
       else:
-        await interaction.response.send_message("Thats not your miner bro", ephemeral=True)
+        await interaction.response.send_message("That's not your miner bro", ephemeral=True)
 
-    
+    async def returntobasecb(interaction):
+      if interaction.user == ctx.author:
+        if str(ctx.author.id) in db["users"]:
+          if db["users"][str(ctx.author.id)]["y"] < 64:
+            embed = discord.Embed(title="You Successfully returned to base!", color=discord.Colour.blurple())    
+          else:
+            await interaction.response.send_message("You are already in your base lol", ephemeral=True)
+            embed.set_thumbnail(url="https://i.ibb.co/Zcvr3ps/3dfd7071185c7e046ecdbf2baa1fcb5b.jpg")
+            
+            minebtn.disabled = True         
+            returnbtn.disabled = True
+            configbtn.disabled = True
+            await ctx.send(embed=embed)
+            await interaction.response.edit_message(view=view)
+            
+        else:
+          await user.create_account(ctx.author)
+          await ctx.send("Created a Miner for you!")
+      else:
+        await interaction.response.send_message("That's not your miner bro", ephemeral=True)
+        
+    async def minecb(interaction):
+      if interaction.user == ctx.author:
+        if str(ctx.author.id) in db["users"]:
+          await ctx.send("Working on it (:")
+          minebtn.disabled = True
+          returnbtn.disabled = True
+          configbtn.disabled = True
+          await interaction.response.edit_message(view=view)
+        else:
+          await user.create_account(ctx.author)
+          await ctx.send("Created a Miner for you!")
+      else:
+        await interaction.response.send_message("That's not your miner bro", ephemeral=True)
+           
 
     minebtn.callback = minecb
     returnbtn.callback = returntobasecb
