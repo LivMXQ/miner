@@ -30,7 +30,6 @@ class Error(commands.Cog):
       await ctx.send(content=message)
       
     else:
-      await ctx.message.delete(delay=5)
       message = f"! Something went wrong while running the command ):"
       print(error)
       await ctx.send(content=message)

@@ -1,38 +1,62 @@
 import random
+from replit import db
 
-category = {
-"ore" : {"Coal":"<:Coal:954584616734437486>", 
-"Copper_Ingot":"<:Copper_Ingot:954584616763789392>",
-"Iron_Ingot":"<:Iron_Ingot:954584616742846554>",  
-"Gold_Ingot":"<:Gold_Ingot:954584616738619462>", "Lapis_Lazuli":"<:Lapis_Lazuli:954584616780570684>",
-"Redstone_Dust":"<:Redstone_Dust:954584616768004176>",
-"Diamond":"<:Diamond:954584616738635786>", 
-"Ruby":"<:Ruby:954584832866922526>",
-"Emerald":"<:Emerald:954584616717660230>",
-"Gold_Nugget":"<:Gold_Nugget:954584616818335784>",
-"Nether_Quartz":"<:Nether_Quartz:954584616730238986>",
-"Netherite_Ingot":"<:Netherite_Ingot:954584616835100762>"
-  },
-             
-"pickaxes" : {
-"Wooden_Pickaxe":"<:Wooden_Pickaxe:954585728153698324>", 
-"Stone_Pickaxe":"<:Stone_Pickaxe:954585728107544656> ",
-"Iron_Pickaxe":"<:Iron_Pickaxe:954585728141111326>",
-"Golden_Pickaxe":"<:Golden_Pickaxe:954585728082378814> ",
-"Diamond_Pickaxe":"<:Diamond_Pickaxe:954585728103362600>",
-"Netherite_Pickaxe":"<:Netherite_Pickaxe:954585728136925204>"
-  },
+class Colour:
+  def __init__(self):
+    pass
+  
+  @classmethod
+  def uncommon(cls):
+    return 7452273
 
-"blocks" : {
-"Cobblestone":"<:Cobblestone:955375789422047252>",
-"Cobbled_Deepslate":"<:Cobbled_Deepslate:955375789484945408> ",
-"Netherrack":"<:Netherrack:954585851319431169>",
-"Blackstone":"<:Blackstone:954585850774163466>",
-"Basalt":"<:Basalt:954585850782547979>"
-  }
+  @classmethod
+  def rare(cls):
+    return 4092090
+
+  @classmethod
+  def epic(cls):
+    return 13330369
+
+  @classmethod
+  def legendary(cls):
+    return 16747803
+
+  @classmethod
+  def mythic(cls):
+    return 16472355
+
+
+
+allitems = {"Coal":{"id":"<:Coal:954584616734437486>", "catagory":"ore", "rarity":"common"}, 
+"Copper_Ingot":{"id":"<:Copper_Ingot:954584616763789392>", "catagory":"ore"},
+"Iron_Ingot":{id:"<:Iron_Ingot:954584616742846554>", "catagory":"ore"},  
+"Gold_Ingot":{"id":"<:Gold_Ingot:954584616738619462>", "catagory":"ore"}, 
+"Lapis_Lazuli":{"id":"<:Lapis_Lazuli:954584616780570684>", "catagory":"ore"},
+"Redstone_Dust":{"id":"<:Redstone_Dust:954584616768004176>", "catagory":"ore"},
+"Diamond":{"id":"<:Diamond:954584616738635786>",
+"catagory":"ore"}, 
+"Ruby":{"id":"<:Ruby:954584832866922526>", 
+"catagory":"ore"},
+"Emerald":{"id":"<:Emerald:954584616717660230>", "catagory":"ore"},
+"Gold_Nugget":{"id":"<:Gold_Nugget:954584616818335784>", "catagory":"ore"},
+"Nether_Quartz":{"id":"<:Nether_Quartz:954584616730238986>", "catagory":"ore"},
+"Netherite_Ingot":{"id":"<:Netherite_Ingot:954584616835100762>", "catagory":"ore"},
+"Wooden_Pickaxe":{"id":"<:Wooden_Pickaxe:954585728153698324>", "catagory":"pickaxe"}, 
+"Stone_Pickaxe":{"id":"<:Stone_Pickaxe:954585728107544656>", "catagory":"pickaxe"},
+"Iron_Pickaxe":{"id":"<:Iron_Pickaxe:954585728141111326>", "catagory":"pickaxe"},
+"Golden_Pickaxe":{"id":"<:Golden_Pickaxe:954585728082378814>", 
+"catagory":"pickaxe"},
+"Diamond_Pickaxe":{"id":"<:Diamond_Pickaxe:954585728103362600>", "catagory":"pickaxe"},
+"Netherite_Pickaxe":{"id":"<:Netherite_Pickaxe:954585728136925204>", "catagory":"pickaxe"},
+"Cobblestone":{"id":"<:Cobblestone:955375789422047252>", "catagory":"block"},
+"Cobbled_Deepslate":{"id":"<:Cobbled_Deepslate:955375789484945408>", "catagory":"block"},
+"Netherrack":{"id":"<:Netherrack:954585851319431169>", "catagory":"block"},
+"Blackstone":{"id":"<:Blackstone:954585850774163466>}", "catagory":"block"},
+"Basalt":{"id":"<:Basalt:954585850782547979>", "catagory":"block"}
 }
 
-async def mine(y):
+
+async def mine_loot(y):
   choice = "".join(random.choices(list(event.keys()), get_dict_value(event)))
   if choice == "event":
     return ["event"]
@@ -64,8 +88,6 @@ async def mine(y):
     elif y <= -54 and y > -65:
       loot = random.choices(list(oreloot_54.keys()), get_dict_value(oreloot64))
       return loot
-    else:
-      return "Heh what happened to ur y level"
     
 
 oreloot64 = {
@@ -155,13 +177,6 @@ oreloot_54 = {
 
 event = {"event": 6.284, "ore": 93.716}
 
-def get_all_items():
-  allitemdict = {}
-  for key in category:
-        categorydict = category[key]
-        for cey in categorydict:
-          allitemdict[cey] = categorydict[cey]
-  return allitemdict
 
 def get_dict_value(dict):
     list = []
@@ -170,8 +185,3 @@ def get_dict_value(dict):
           
     return list
   
-def random_color():
-  hexadecimal = int("0x"+"".join([random.choice('ABCDEF0123456789') for i in range(6)]), 16)
-  return hexadecimal
-
-allitemdict = get_all_items()
