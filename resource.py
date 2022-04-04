@@ -20,7 +20,7 @@ def mythic():
 
 allitems = {"Coal":{"id":"<:Coal:954584616734437486>", "catagory":"ore", "rarity":"common"}, 
 "Copper_Ingot":{"id":"<:Copper_Ingot:954584616763789392>", "catagory":"ore"},
-"Iron_Ingot":{id:"<:Iron_Ingot:954584616742846554>", "catagory":"ore"},  
+"Iron_Ingot":{"id":"<:Iron_Ingot:954584616742846554>", "catagory":"ore"},  
 "Gold_Ingot":{"id":"<:Gold_Ingot:954584616738619462>", "catagory":"ore"}, 
 "Lapis_Lazuli":{"id":"<:Lapis_Lazuli:954584616780570684>", "catagory":"ore"},
 "Redstone_Dust":{"id":"<:Redstone_Dust:954584616768004176>", "catagory":"ore"},

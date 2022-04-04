@@ -51,7 +51,7 @@ class Miner(commands.Cog):
       await ctx.send(embed=embed) 
  
     else:
-      await user.create_account()
+      await usr.create_account()
       await ctx.send("Created a Miner for you!")
 
   
