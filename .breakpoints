@@ -3,9 +3,9 @@
     "cogs/miner.py": [
       {
         "id": "6c6f0ea5-3389-49aa-92b5-c994aa3b3bc8",
-        "line": 23,
-        "version": 4432,
-        "index": 703
+        "line": 29,
+        "version": 4926,
+        "index": 1111
       }
     ]
   }

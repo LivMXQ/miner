@@ -132,7 +132,7 @@ class Miner(commands.Cog):
     configbtn.callback = configcb
     
   @commands.command(name="inventory",aliases=["inv"])
-  async def info(self, ctx):  
+  async def inventory(self, ctx):  
     usr = user.User(ctx.author)
     embed = discord.Embed(title=f"{ctx.author.name}'s inventory", color=discord.Colour.random())
     invdict = await usr.get_user_data("inventory")
