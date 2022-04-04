@@ -62,11 +62,9 @@ class Miner(commands.Cog):
     embed = discord.Embed(title=f"{ctx.author.name} goes mining!", color=discord.Colour.random())
     embed.add_field(name="current y-level", value=await usr.get_user_data("y"))
     embed.set_image(url="https://tryhardguides.com/wp-content/uploads/2022/03/featured-clash-royale-miner-update-768x432.jpg")
-    minebtn = Button(label="Mine!", style=discord.ButtonStyle.primary, emoji="⛏")
     returnbtn = Button(label="Return to base", style=discord.ButtonStyle.primary, emoji="🏡")
     configbtn = Button(label="Mine settings", style=discord.ButtonStyle.primary, emoji="⚙")
     view = View()
-    view.add_item(minebtn)
     view.add_item(configbtn)
     view.add_item(returnbtn)
     await ctx.send(embed=embed, view=view)   
@@ -109,25 +107,8 @@ class Miner(commands.Cog):
           await interaction.response.send_message("Created a Miner for you!")
       else:
         await interaction.response.send_message("That's not your miner bro", ephemeral=True)
-        
-    async def minecb(interaction):
-      if interaction.user == ctx.author:
-        if str(ctx.author.id) in db["users"]:
-          embed = await self.minefn(ctx)
-          await ctx.send(embed=embed) 
-          
-          minebtn.disabled = True
-          returnbtn.disabled = True
-          configbtn.disabled = True
-          await interaction.response.edit_message(view=view)
-        else:
-          await user.create_account()
-          await ctx.send("Created a Miner for you!")
-      else:
-        await interaction.response.send_message("That's not your miner bro", ephemeral=True)
-           
 
-    minebtn.callback = minecb
+  
     returnbtn.callback = returntobasecb
     configbtn.callback = configcb
     
