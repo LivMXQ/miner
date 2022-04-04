@@ -32,6 +32,13 @@ class User:
   async def get_multipler(self):
     return 1
 
+  async def returntobase(self):
+    if db["users"][str(self.user.id)]["y"] < 64:
+      db["users"][str(self.user.id)]["y"] = 64
+      return True
+    else:
+      return False
+      
   async def create_account(self):
     db["users"][str(self.user.id)] = {"y":64, "inventory":{}, "pickaxe":["wooden_pickaxe", {}, 60]}
     role = discord.utils.get(self.user.guild.roles, name="minor")

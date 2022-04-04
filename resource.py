@@ -1,29 +1,20 @@
 import random
-from replit import db
 
-class Colour:
-  def __init__(self):
-    pass
+
+def uncommon():
+  return 7452273
+
+def rare():
+  return 4092090
+
+def epic():
+  return 13330369
   
-  @classmethod
-  def uncommon(cls):
-    return 7452273
+def legendary():
+  return 16747803
 
-  @classmethod
-  def rare(cls):
-    return 4092090
-
-  @classmethod
-  def epic(cls):
-    return 13330369
-
-  @classmethod
-  def legendary(cls):
-    return 16747803
-
-  @classmethod
-  def mythic(cls):
-    return 16472355
+def mythic():
+  return 16472355
 
 
 
@@ -65,28 +56,28 @@ async def mine_loot(y):
       loot = random.choices(list(oreloot64.keys()), get_dict_value(oreloot64))
       return loot
     elif y <= 48 and y > 32:
-      loot = random.choices(list(oreloot48.keys()), get_dict_value(oreloot64))
+      loot = random.choices(list(oreloot48.keys()), get_dict_value(oreloot48))
       return loot
     elif y <= 32 and y > 16:
-      loot = random.choices(list(oreloot32.keys()), get_dict_value(oreloot64))
+      loot = random.choices(list(oreloot32.keys()), get_dict_value(oreloot32))
       return loot
     elif y <= 16 and y > 0:
-      loot = random.choices(list(oreloot16.keys()), get_dict_value(oreloot64))
+      loot = random.choices(list(oreloot16.keys()), get_dict_value(oreloot16))
       return loot
     elif y <= 0 and y > -16:
-      loot = random.choices(list(oreloot0.keys()), get_dict_value(oreloot64))
+      loot = random.choices(list(oreloot0.keys()), get_dict_value(oreloot0))
       return loot
     elif y <= -16 and y > -32:
-      loot = random.choices(list(oreloot_16.keys()), get_dict_value(oreloot64))
+      loot = random.choices(list(oreloot_16.keys()), get_dict_value(oreloot_16))
       return loot
     elif y <= -32 and y > -48:
-      loot = random.choices(list(oreloot_32.keys()), get_dict_value(oreloot64))
+      loot = random.choices(list(oreloot_32.keys()), get_dict_value(oreloot_32))
       return loot
     elif y <= -48 and y > -54:
-      loot = random.choices(list(oreloot_48.keys()), get_dict_value(oreloot64))
+      loot = random.choices(list(oreloot_48.keys()), get_dict_value(oreloot_48))
       return loot
     elif y <= -54 and y > -65:
-      loot = random.choices(list(oreloot_54.keys()), get_dict_value(oreloot64))
+      loot = random.choices(list(oreloot_54.keys()), get_dict_value(oreloot_54))
       return loot
     
 
