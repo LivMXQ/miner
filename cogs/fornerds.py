@@ -1,4 +1,3 @@
-import discord
 import resource
 from discord.ext import commands
 

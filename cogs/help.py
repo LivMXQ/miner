@@ -1,6 +1,5 @@
 import discord
 import resource
-import time
 from discord.ext import commands
 
 

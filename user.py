@@ -22,12 +22,15 @@ class Inventory:
     for i in self.dict:
       db["users"][str(self.user.id)]["inventory"][i] = self.dict[i]
 
+
 class User:
   def __init__(self, user):
     self.user = user
 
+  
   async def get_cooldown(self):
-    pass
+    return 20
+
 
   async def get_multipler(self):
     return 1

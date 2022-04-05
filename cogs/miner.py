@@ -7,9 +7,30 @@ from discord.ext import commands
 from discord.ui import Button, View
 
 
+
+
 class Miner(commands.Cog):
   def __init__(self, bot):
     self.bot = bot
+    global cooldowns 
+    cooldowns = dict()
+    self.initialize_cooldowns()
+
+  def check_cooldown():
+    def predicate(ctx):
+      user_id = str(ctx.author.id)
+      bucket = cooldowns[user_id].get_bucket(ctx.message)
+      retry_after = bucket.update_rate_limit()
+      if retry_after:
+        raise commands.CommandOnCooldown(bucket, retry_after, commands.BucketType.user)
+      return True
+    return commands.check(predicate)
+
+  def initialize_cooldowns(self):  # This function still needs to be called somewhere.
+    for i in db["users"]:
+      user_id = i
+      duration = 20
+      cooldowns[user_id] = commands.CooldownMapping.from_cooldown(1, duration, commands.BucketType.user)
 
   async def minefn(self, ctx):
     usr = user.User(ctx.author)
@@ -26,15 +47,15 @@ class Miner(commands.Cog):
         await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,5))
       embed = discord.Embed(title=f"{ctx.author.name}'s booty", colour=resource.uncommon())
       embed.set_thumbnail(url="https://i.ibb.co/f8Lsxkb/Small-Mining-Sack.jpg")
-      embed.add_field(name=resource.allitems[loot]["id"], value=f"{multipler} x {loot}")
+      id = resource.allitems[loot]["id"]
+      embed.add_field(value=f"You swung your pickaxe and got {multipler} {loot} {id}", name='\u200b')
       y = await usr.get_user_data("y")
-      embed.set_footer(text=f"new y-level ─ {y}")
+      embed.set_footer(text=f"new y-level ─  {y}")
       
 
       inventory = user.Inventory(ctx.author)
       await inventory.add_item(loot, multipler)
     return embed
-   
     
 
     
@@ -44,8 +65,12 @@ class Miner(commands.Cog):
     embed.set_image(url="https://i.ibb.co/Rg90Qnn/b3bak5eige381-png.png")
     await ctx.send(embed=embed)
 
+
+  
   @commands.command(name="mine", aliases=["dig"])
+  @check_cooldown()
   async def mine(self, ctx):
+    usr = user.User(ctx.author)
     if str(ctx.author.id) in db["users"]:
       embed = await self.minefn(ctx)
       await ctx.send(embed=embed) 
@@ -74,7 +99,6 @@ class Miner(commands.Cog):
       if interaction.user == ctx.author:
         if str(ctx.author.id) in db["users"]:
           await ctx.send("Working on it (:")
-          minebtn.disabled = True
           returnbtn.disabled = True
           configbtn.disabled = True
           await interaction.response.edit_message(view=view)
@@ -92,8 +116,7 @@ class Miner(commands.Cog):
             
             embed.set_thumbnail(url="https://i.ibb.co/Zcvr3ps/3dfd7071185c7e046ecdbf2baa1fcb5b.jpg")
             embed.add_field(name="New y-level", value=await usr.get_user_data("y"))
-            await ctx.send(embed=embed)
-            minebtn.disabled = True         
+            await ctx.send(embed=embed)       
             returnbtn.disabled = True
             configbtn.disabled = True
             
@@ -111,6 +134,8 @@ class Miner(commands.Cog):
   
     returnbtn.callback = returntobasecb
     configbtn.callback = configcb
+
+
     
   @commands.command(name="inventory",aliases=["inv"])
   async def inventory(self, ctx):  
@@ -118,7 +143,8 @@ class Miner(commands.Cog):
     embed = discord.Embed(title=f"{ctx.author.name}'s inventory", color=discord.Colour.random())
     invdict = await usr.get_user_data("inventory")
     for i in invdict:
-      embed.add_field(name=f"{i} ─ {invdict[i]}", value=None, inline=False)
+      id = resource.allitems[i]["id"]
+      embed.add_field(name=f"{id} {i} ─ {invdict[i]}", value=None, inline=False)
     embed.set_footer(text="yes")
     await ctx.send(embed=embed)
 

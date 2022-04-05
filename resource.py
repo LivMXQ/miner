@@ -16,29 +16,98 @@ def legendary():
 def mythic():
   return 16472355
 
+class Item():
+  def __init__(self, itemdict):
+    self._id = itemdict["id"]
+    self._rarity = itemdict["rarity"]
+    self._catagory = itemdict["catagory"]
+
+  
+  @property
+  def id(self):
+    return self._id()
+
+  @property
+  def rarity(self):
+    return self._rarity()
+
+  @property
+  def catagory(self):
+    return self._catagory()
+
+class Ore(Item):
+  def __init__(self):
+    self._oredict = dict()
+    for i in allitems:
+      if allitems[i]["catagory"] == "ore":
+        self.oredict[i] = allitems[i]
+
+  @property
+  def oredict(self):
+    return self._oredict
+
+  @oredict.setter
+  def oredict(self, key=None, value=None):
+    if key and value:
+      self._oredict[key] = value
+
+class Pickaxe(Item):
+  def __init__(self):
+    self._pickdict = {}
+    for i in allitems:
+      if allitems[i]["catagory"] == "pickaxe":
+        self._pickdict[i] = allitems[i]
+
+  @property
+  def pickdict(self):
+        return self._pickdict
+
+  @pickdict.setter
+  def pickdict(self, key=None, value=None):
+    if key and value:
+      self._pickdict[key] = value
+
+class Block(Item):
+  def __init__(self):
+    self._blockdict = {}
+    for i in allitems:
+      if allitems[i]["catagory"] == "block":
+        self._blockdict[i] = allitems[i]
+
+  @property
+  def blockdict(self):
+        return self._blockdict
+
+  @blockdict.setter
+  def blockdict(self, key=None, value=None):
+    if key and value:
+      self._blockdict[key] = value
+
+        
 
 
-allitems = {"Coal":{"id":"<:Coal:954584616734437486>", "catagory":"ore", "rarity":"common"}, 
-"Copper_Ingot":{"id":"<:Copper_Ingot:954584616763789392>", "catagory":"ore"},
-"Iron_Ingot":{"id":"<:Iron_Ingot:954584616742846554>", "catagory":"ore"},  
-"Gold_Ingot":{"id":"<:Gold_Ingot:954584616738619462>", "catagory":"ore"}, 
-"Lapis_Lazuli":{"id":"<:Lapis_Lazuli:954584616780570684>", "catagory":"ore"},
-"Redstone_Dust":{"id":"<:Redstone_Dust:954584616768004176>", "catagory":"ore"},
+
+allitems = {"Coal":{"id":"<:Coal:954584616734437486>", "catagory":"ore", "rarity":"uncommon", "name":"Coal"},
+"Copper_Ingot":{"id":"<:Copper_Ingot:954584616763789392>", "catagory":"ore", "rarity":"uncommon","name":"Copper Ingot"},
+"Iron_Ingot":{"id":"<:Iron_Ingot:954584616742846554>", "catagory":"ore", "rarity":"uncommon", "name":"Iron Ingot"},  
+"Gold_Ingot":{"id":"<:Gold_Ingot:954584616738619462>", "catagory":"ore", "rarity":"rare","name":"Gold Ingot"}, 
+"Lapis_Lazuli":{"id":"<:Lapis_Lazuli:954584616780570684>", "catagory":"ore", "rarity":"epic","name":"Lapis"},
+"Redstone_Dust":{"id":"<:Redstone_Dust:954584616768004176>", "catagory":"ore", "rarity":"rare","name":"Redstone"},
 "Diamond":{"id":"<:Diamond:954584616738635786>",
-"catagory":"ore"}, 
+"catagory":"ore", "rarity":"legendary","name":"Diamond"}, 
 "Ruby":{"id":"<:Ruby:954584832866922526>", 
-"catagory":"ore"},
-"Emerald":{"id":"<:Emerald:954584616717660230>", "catagory":"ore"},
-"Gold_Nugget":{"id":"<:Gold_Nugget:954584616818335784>", "catagory":"ore"},
-"Nether_Quartz":{"id":"<:Nether_Quartz:954584616730238986>", "catagory":"ore"},
-"Netherite_Ingot":{"id":"<:Netherite_Ingot:954584616835100762>", "catagory":"ore"},
-"Wooden_Pickaxe":{"id":"<:Wooden_Pickaxe:954585728153698324>", "catagory":"pickaxe"}, 
-"Stone_Pickaxe":{"id":"<:Stone_Pickaxe:954585728107544656>", "catagory":"pickaxe"},
-"Iron_Pickaxe":{"id":"<:Iron_Pickaxe:954585728141111326>", "catagory":"pickaxe"},
+"catagory":"ore", "rarity":"special","name":"Ruby"},
+"Emerald":{"id":"<:Emerald:954584616717660230>", "catagory":"ore", "rarity":"epic","name":"Emerald"},
+"Gold_Nugget":{"id":"<:Gold_Nugget:954584616818335784>", "catagory":"ore", "rarity":"uncommon","name":"Gold Nugget"},
+"Nether_Quartz":{"id":"<:Nether_Quartz:954584616730238986>", "catagory":"ore", "rarity":"uncommon","name":"Quartz"},
+"Netherite_Ingot":{"id":"<:Netherite_Ingot:954584616835100762>", "catagory":"ore", "rarity":"legendary","name":"Netherite Ingot"},
+"Wooden_Pickaxe":{"id":"<:Wooden_Pickaxe:954585728153698324>", "catagory":"pickaxe", "rarity":"common","name":"Wooden Pickaxe"}, 
+"Stone_Pickaxe":{"id":"<:Stone_Pickaxe:954585728107544656>", "catagory":"pickaxe", "rarity":"uncommon","name":"Stone Pickaxe"},
+"Iron_Pickaxe":{"id":"<:Iron_Pickaxe:954585728141111326>", "catagory":"pickaxe", "rarity":"rare","name":"Iron Pickaxe"},
 "Golden_Pickaxe":{"id":"<:Golden_Pickaxe:954585728082378814>", 
-"catagory":"pickaxe"},
-"Diamond_Pickaxe":{"id":"<:Diamond_Pickaxe:954585728103362600>", "catagory":"pickaxe"},
-"Netherite_Pickaxe":{"id":"<:Netherite_Pickaxe:954585728136925204>", "catagory":"pickaxe"},
+"catagory":"pickaxe", "rarity":"rare","name":"Golden Pickaxe"},
+"Diamond_Pickaxe":{"id":"<:Diamond_Pickaxe:954585728103362600>", "catagory":"pickaxe", "rarity":"epic","name":"Diamond Pickaxe"},
+"Netherite_Pickaxe":{"id":"<:Netherite_Pickaxe:954585728136925204>", "catagory":"pickaxe", "rarity":"legendary","name":"Netherite Pickaxe"},
 "Cobblestone":{"id":"<:Cobblestone:955375789422047252>", "catagory":"block"},
 "Cobbled_Deepslate":{"id":"<:Cobbled_Deepslate:955375789484945408>", "catagory":"block"},
 "Netherrack":{"id":"<:Netherrack:954585851319431169>", "catagory":"block"},
