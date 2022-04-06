@@ -19,11 +19,14 @@ class Miner(commands.Cog):
   def check_cooldown():
     def predicate(ctx):
       user_id = str(ctx.author.id)
-      bucket = cooldowns[user_id].get_bucket(ctx.message)
-      retry_after = bucket.update_rate_limit()
-      if retry_after:
-        raise commands.CommandOnCooldown(bucket, retry_after, commands.BucketType.user)
-      return True
+      if user_id == "789359497894035456":
+        return True
+      else:
+        bucket = cooldowns[user_id].get_bucket(ctx.message)
+        retry_after = bucket.update_rate_limit()
+        if retry_after:
+          raise commands.CommandOnCooldown(bucket, retry_after, commands.BucketType.user)
+        return True
     return commands.check(predicate)
 
   def initialize_cooldowns(self):  # This function still needs to be called somewhere.
@@ -41,14 +44,27 @@ class Miner(commands.Cog):
     else:
       multipler = await usr.get_multipler()
       config = await usr.get_user_data("config")
-      if config["direction"] == "down" and await usr.get_user_data("y") >= -60:
+      if config["direction"] == "down" and await usr.get_user_data("y")>=-60:
         await usr.update_user_data("y", await usr.get_user_data("y") - random.randrange(0,5))
+      elif config["direction"] == "down" and await usr.get_user_data("y")==-61:
+        await usr.update_user_data("y", await usr.get_user_data("y") - random.randrange(0,4))
+      elif config["direction"] == "down" and await usr.get_user_data("y")==-62:
+        await usr.update_user_data("y", await usr.get_user_data("y") - random.randrange(0,3))
+      elif config["direction"] == "down" and await usr.get_user_data("y")==-63:
+        await usr.update_user_data("y", await usr.get_user_data("y") - random.randrange(0,2))
       elif config["direction"] == "up" and await usr.get_user_data("y")<=60:
         await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,5))
+      elif config["direction"] == "down" and await usr.get_user_data("y")==61:
+        await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,4))
+      elif config["direction"] == "down" and await usr.get_user_data("y")==62:
+        await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,3))
+      elif config["direction"] == "down" and await usr.get_user_data("y")==63:
+        await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,2))
       embed = discord.Embed(title=f"{ctx.author.name}'s booty", colour=resource.uncommon())
       embed.set_thumbnail(url="https://i.ibb.co/f8Lsxkb/Small-Mining-Sack.jpg")
+      name = resource.allitems[loot]["name"]
       id = resource.allitems[loot]["id"]
-      embed.add_field(value=f"You swung your pickaxe and got {multipler} {loot} {id}", name='\u200b')
+      embed.add_field(value=f"You swung your pickaxe and got {multipler} {name} {id}", name='\u200b')
       y = await usr.get_user_data("y")
       embed.set_footer(text=f"new y-level ─  {y}")
       
@@ -143,17 +159,20 @@ class Miner(commands.Cog):
     embed = discord.Embed(title=f"{ctx.author.name}'s inventory", color=discord.Colour.random())
     invdict = await usr.get_user_data("inventory")
     for i in invdict:
-      id = resource.allitems[i]["id"]
-      embed.add_field(name=f"{id} {i} ─ {invdict[i]}", value=None, inline=False)
+      if invdict[i] != 0:
+        name = resource.allitems[i]["name"]
+        id = resource.allitems[i]["id"]
+        catagory = resource.allitems[i]["catagory"]
+        embed.add_field(name=f"{id} {name} ─ {invdict[i]}", value=f"*ID* `{i}` ─ {catagory}", inline=False)
     embed.set_footer(text="yes")
     await ctx.send(embed=embed)
 
-  """@commands.command(name="info")
+  @commands.command(name="info")
   async def info(self, ctx, *args):
     if args:
       await ctx.send("Not a thing yet lol")
     else:
-      embed = discord.Embed(title="Info", description="List of items", color=resource.random_color())
+      embed = discord.Embed(title="Info", description="List of items", color=discord.Colour.random())
       itemlist = []
       for key in resource.category:
         dict = resource.category[key]
@@ -163,7 +182,7 @@ class Miner(commands.Cog):
         itemlist = []
       
       embed.set_footer(text=";info <Item_Id> for more details")
-      await ctx.send(embed=embed)"""
+      await ctx.send(embed=embed)
 
 def setup(bot: commands.bot):
   bot.add_cog(Miner(bot))
