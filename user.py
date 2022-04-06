@@ -1,4 +1,5 @@
 import discord
+from cogs import miner
 from replit import db
 
 class Inventory:
@@ -43,8 +44,9 @@ class User:
       return False
       
   async def create_account(self):
-    db["users"][str(self.user.id)] = {"y":64, "inventory":{}, "pickaxe":["wooden_pickaxe", {}, 60]}
+    db["users"][str(self.user.id)] = {'y': 64, 'inventory': {}, 'pickaxe': ['wooden_pickaxe', {}, 60], 'config': {'direction': 'down'}}
     role = discord.utils.get(self.user.guild.roles, name="minor")
+    miner.initialize_cooldowns()
     await self.user.add_roles(role)
     return True
     

@@ -6,7 +6,11 @@ from replit import db
 from discord.ext import commands
 from discord.ui import Button, View
 
-
+def initialize_cooldowns():  # This function still needs to be called somewhere.
+    for i in db["users"]:
+      user_id = i
+      duration = 20
+      cooldowns[user_id] = commands.CooldownMapping.from_cooldown(1, duration, commands.BucketType.user)
 
 
 class Miner(commands.Cog):
@@ -14,29 +18,30 @@ class Miner(commands.Cog):
     self.bot = bot
     global cooldowns 
     cooldowns = dict()
-    self.initialize_cooldowns()
+    initialize_cooldowns()
     self.item = resource.Item()
     self.allitems = self.item.getallitems()
 
 
   def check_cooldown():
-    def predicate(ctx):
+    async def predicate(ctx):
       user_id = str(ctx.author.id)
       if user_id == "789359497894035456":
         return True
       else:
-        bucket = cooldowns[user_id].get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit()
-        if retry_after:
-          raise commands.CommandOnCooldown(bucket, retry_after, commands.BucketType.user)
-        return True
+        if user_id in cooldowns:
+          bucket = cooldowns[user_id].get_bucket(ctx.message)
+          retry_after = bucket.update_rate_limit()
+          if retry_after:
+            raise commands.CommandOnCooldown(bucket, retry_after, commands.BucketType.user)
+          return True
+        else:
+          usr = user.User(ctx.author)
+          await usr.create_account()
+          await ctx.send("Created a minor for you!")
+          return True
     return commands.check(predicate)
 
-  def initialize_cooldowns(self):  # This function still needs to be called somewhere.
-    for i in db["users"]:
-      user_id = i
-      duration = 20
-      cooldowns[user_id] = commands.CooldownMapping.from_cooldown(1, duration, commands.BucketType.user)
 
   async def minefn(self, ctx):
     usr = user.User(ctx.author)
@@ -159,16 +164,20 @@ class Miner(commands.Cog):
   @commands.command(name="inventory",aliases=["inv"])
   async def inventory(self, ctx):  
     usr = user.User(ctx.author)
-    embed = discord.Embed(title=f"{ctx.author.name}'s inventory", color=discord.Colour.random())
-    invdict = await usr.get_user_data("inventory")
-    for i in invdict:
-      if invdict[i] != 0:
-        name = self.allitems[i]["name"]
-        id = self.allitems[i]["id"]
-        catagory = self.allitems[i]["catagory"]
-        embed.add_field(name=f"{id} {name} ─ {invdict[i]}", value=f"*ID* `{i}` ─ {catagory}", inline=False)
-    embed.set_footer(text="yes")
-    await ctx.send(embed=embed)
+    if str(ctx.author.id) in db["users"]:  
+      embed = discord.Embed(title=f"{ctx.author.name}'s inventory", color=discord.Colour.random())
+      invdict = await usr.get_user_data("inventory")
+      for i in invdict:
+        if invdict[i] != 0:
+          name = self.allitems[i]["name"]
+          id = self.allitems[i]["id"]
+          catagory = self.allitems[i]["catagory"]
+          embed.add_field(name=f"{id} {name} ─ {invdict[i]}", value=f"*ID* `{i}` ─ {catagory}", inline=False)
+      embed.set_footer(text="yes")
+      await ctx.send(embed=embed)
+    else:
+      await usr.create_account()
+      await ctx.send("Created a Miner for you!")
 
   @commands.command(name="info")
   async def info(self, ctx, *args):
