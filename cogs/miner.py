@@ -15,6 +15,9 @@ class Miner(commands.Cog):
     global cooldowns 
     cooldowns = dict()
     self.initialize_cooldowns()
+    self.item = resource.Item()
+    self.allitems = self.item.getallitems()
+
 
   def check_cooldown():
     def predicate(ctx):
@@ -62,8 +65,8 @@ class Miner(commands.Cog):
         await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,2))
       embed = discord.Embed(title=f"{ctx.author.name}'s booty", colour=resource.uncommon())
       embed.set_thumbnail(url="https://i.ibb.co/f8Lsxkb/Small-Mining-Sack.jpg")
-      name = resource.allitems[loot]["name"]
-      id = resource.allitems[loot]["id"]
+      name = self.allitems[loot]["name"]
+      id = self.allitems[loot]["id"]
       embed.add_field(value=f"You swung your pickaxe and got {multipler} {name} {id}", name='\u200b')
       y = await usr.get_user_data("y")
       embed.set_footer(text=f"new y-level ─  {y}")
@@ -160,9 +163,9 @@ class Miner(commands.Cog):
     invdict = await usr.get_user_data("inventory")
     for i in invdict:
       if invdict[i] != 0:
-        name = resource.allitems[i]["name"]
-        id = resource.allitems[i]["id"]
-        catagory = resource.allitems[i]["catagory"]
+        name = self.allitems[i]["name"]
+        id = self.allitems[i]["id"]
+        catagory = self.allitems[i]["catagory"]
         embed.add_field(name=f"{id} {name} ─ {invdict[i]}", value=f"*ID* `{i}` ─ {catagory}", inline=False)
     embed.set_footer(text="yes")
     await ctx.send(embed=embed)

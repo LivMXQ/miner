@@ -1,5 +1,4 @@
 import discord
-import resource
 from discord.ext import commands
 
 
@@ -25,7 +24,7 @@ class MyHelp(commands.HelpCommand):
       
     
   async def send_command_help(self, command):
-    embed = discord.Embed(title=f"-{command} info", color=resource.random_color())
+    embed = discord.Embed(title=f"-{command} info", color=discord.Colour.random())
     embed.add_field(name="Description", value=command.help)
     embed.add_field(name='Usage', value=self.get_command_signature(command), inline=False)
     try:
@@ -44,7 +43,7 @@ class MyHelp(commands.HelpCommand):
     
   async def send_bot_help(self, mapping):
     ctx = self.get_destination()
-    embed = discord.Embed(title=f"{ctx.guild} Help", color=resource.random_color())
+    embed = discord.Embed(title=f"{ctx.guild} Help", color=discord.Colour.random())
     for cog, command in mapping.items():
       filtered = await self.filter_commands(command, sort=True)
       command_signatures = [self.get_command_signature(c) for c in filtered]

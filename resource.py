@@ -17,10 +17,7 @@ def mythic():
   return 16472355
 
 class Item():
-  def __init__(self, itemdict):
-    self.id = itemdict["id"]
-    self.rarity = itemdict["rarity"]
-    self.catagory = itemdict["catagory"]
+  def __init__(self):
     self.allitems = allitems
 
   def getallitems(self):
