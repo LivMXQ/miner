@@ -18,71 +18,57 @@ def mythic():
 
 class Item():
   def __init__(self, itemdict):
-    self._id = itemdict["id"]
-    self._rarity = itemdict["rarity"]
-    self._catagory = itemdict["catagory"]
+    self.id = itemdict["id"]
+    self.rarity = itemdict["rarity"]
+    self.catagory = itemdict["catagory"]
+    self.allitems = allitems
+
+  def get_allitems(self):
+    return self.allitems
 
   
-  @property
-  def id(self):
-    return self._id()
-
-  @property
-  def rarity(self):
-    return self._rarity()
-
-  @property
-  def catagory(self):
-    return self._catagory()
 
 class Ore(Item):
   def __init__(self):
-    self._oredict = dict()
+    self.oredict = dict()
     for i in allitems:
       if allitems[i]["catagory"] == "ore":
         self.oredict[i] = allitems[i]
 
-  @property
-  def oredict(self):
-    return self._oredict
-
-  @oredict.setter
-  def oredict(self, key=None, value=None):
-    if key and value:
-      self._oredict[key] = value
+  def getore(self, *args):
+    if args: 
+      pass
+    else:
+      return self.oredict
 
 class Pickaxe(Item):
   def __init__(self):
-    self._pickdict = {}
+    self.pickdict = {}
     for i in allitems:
       if allitems[i]["catagory"] == "pickaxe":
-        self._pickdict[i] = allitems[i]
+        self.pickdict[i] = allitems[i]
 
-  @property
-  def pickdict(self):
-        return self._pickdict
+  def getpickaxe(self, *args):
+    if args: 
+      pass
+    else:
+      return self.pickdict
 
-  @pickdict.setter
-  def pickdict(self, key=None, value=None):
-    if key and value:
-      self._pickdict[key] = value
+
 
 class Block(Item):
   def __init__(self):
-    self._blockdict = {}
+    self.blockdict = {}
     for i in allitems:
       if allitems[i]["catagory"] == "block":
-        self._blockdict[i] = allitems[i]
+        self.blockdict[i] = allitems[i]
 
-  @property
-  def blockdict(self):
-        return self._blockdict
-
-  @blockdict.setter
-  def blockdict(self, key=None, value=None):
-    if key and value:
-      self._blockdict[key] = value
-
+  def getblock(self, *args):
+    if args: 
+      pass
+    else:
+      return self.blockdict
+    
         
 
 
