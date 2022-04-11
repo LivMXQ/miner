@@ -2,6 +2,9 @@ import discord
 from cogs import miner
 from replit import db
 
+def get_all_users():
+  return db["users"]
+
 class Inventory:
   def __init__(self, user):
     self.user = user
@@ -30,7 +33,7 @@ class User:
 
   
   async def get_cooldown(self):
-    return 20
+    return 17
 
 
   async def get_multipler(self):
@@ -44,19 +47,24 @@ class User:
       return False
       
   async def create_account(self):
-    db["users"][str(self.user.id)] = {'y': 64, 'inventory': {}, 'pickaxe': ['wooden_pickaxe', {}, 60], 'config': {'direction': 'down'}}
+    db["users"][str(self.user.id)] = {'y': 64, 'inventory': {}, 'pickaxe': ['wooden_pickaxe', {}, 60], 'config': {'direction': 'down'}, "story":0}
     role = discord.utils.get(self.user.guild.roles, name="minor")
     miner.initialize_cooldowns()
     await self.user.add_roles(role)
     return True
     
-  async def update_user_data(self, type, value):
+  async def update_user_data(self, type, *value):
     if str(self.user.id) in db["users"]:
-      db["users"][str(self.user.id)][type] = value
-      return True
+      if len(value) == 1:
+        db["users"][str(self.user.id)][type] = value[0]
+        return True
+               
+      elif len(value) == 2:
+        db["users"][str(self.user.id)][type][value[0]] = value[1]
+        return True
     else:
       return False
-  
+    
   async def get_user_data(self, type):
     if str(self.user.id) in db["users"]:
       value = db["users"][str(self.user.id)][type]

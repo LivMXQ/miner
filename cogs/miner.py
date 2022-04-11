@@ -4,13 +4,35 @@ import user
 import random
 from replit import db
 from discord.ext import commands
-from discord.ui import Button, View
+from discord.ui import Button, Select, View
 
 def initialize_cooldowns():  # This function still needs to be called somewhere.
     for i in db["users"]:
       user_id = i
-      duration = 20
+      duration = 17.5
       cooldowns[user_id] = commands.CooldownMapping.from_cooldown(1, duration, commands.BucketType.user)
+
+class view_timeout(View):
+  def __init__(self, timeout, ctx):
+    super().__init__(timeout=timeout)
+    self.inactive = False
+    self.ctx = ctx
+   
+  async def on_timeout(self):
+    if self.inactive == False:
+      for i in self.children:
+        child = i
+        child.disabled=True
+      
+      await self.message.edit(view=self)
+
+
+  async def interaction_check(self, interaction: discord.Interaction):
+    if interaction.user != self.ctx.author:
+      await interaction.response.send_message("That's not your miner bro", ephemeral=True)
+      return False
+    else:
+      return True
 
 
 class Miner(commands.Cog):
@@ -103,60 +125,77 @@ class Miner(commands.Cog):
       await usr.create_account()
       await ctx.send("Created a Miner for you!")
 
-  
+  async def menufn(self, ctx):
+    usr = user.User(ctx.author)
+    embed = discord.Embed(title=f"{ctx.author.name}'s miner menu", color=discord.Colour.random())
+    embed.add_field(name="current y-level", value=await usr.get_user_data("y"))
+    embed.set_image(url="https://tryhardguides.com/wp-content/uploads/2022/03/featured-clash-royale-miner-update-768x432.jpg")
+    
+    return embed
   
   @commands.command(name="menu")
   async def menu(self, ctx):
     usr = user.User(ctx.author)
-    embed = discord.Embed(title=f"{ctx.author.name} goes mining!", color=discord.Colour.random())
-    embed.add_field(name="current y-level", value=await usr.get_user_data("y"))
-    embed.set_image(url="https://tryhardguides.com/wp-content/uploads/2022/03/featured-clash-royale-miner-update-768x432.jpg")
-    returnbtn = Button(label="Return to base", style=discord.ButtonStyle.primary, emoji="🏡")
-    configbtn = Button(label="Mine settings", style=discord.ButtonStyle.primary, emoji="⚙")
-    view = View()
-    view.add_item(configbtn)
-    view.add_item(returnbtn)
-    await ctx.send(embed=embed, view=view)   
+    if str(ctx.author.id) in db["users"]:
+      menuembed = await self.menufn(ctx)
+      rtbbtn = Button(label="Return to base", style=discord.ButtonStyle.primary, emoji="🏡")
+      configbtn = Button(label="Mine settings", style=discord.ButtonStyle.primary, emoji="⚙")
+      configembed = discord.Embed(title=f"{ctx.author.name}'s configurations menu")
+      config = await usr.get_user_data("config")
+      print(config)
+      configselect = Select(options=[
+        discord.SelectOption(label="direction")
+      ])
+      rtmbtn = Button(label="Go back", style=discord.ButtonStyle.primary, emoji="🔙")
+      menuview = view_timeout(timeout=10, ctx=ctx)
+      configview = view_timeout(timeout=10, ctx=ctx)
+      menuview.add_item(configbtn)
+      menuview.add_item(rtbbtn)
+      configview.add_item(configselect)
+      configview.add_item(rtmbtn)
+      menumessage = await ctx.send(embed=menuembed, view=menuview)
+      menuview.message = menumessage
+      configview.message = menumessage
+    else:
+      await usr.create_account()
+      await ctx.send("Created a Miner for you!")
 
 
     async def configcb(interaction):
-      if interaction.user == ctx.author:
-        if str(ctx.author.id) in db["users"]:
-          await ctx.send("Working on it (:")
-          returnbtn.disabled = True
-          configbtn.disabled = True
-          await interaction.response.edit_message(view=view)
-        else:
-          await usr.create_account()
-          await ctx.send("Created a Miner for you!")
+      if await menuview.interaction_check(interaction=interaction):
+        menuview.inactive = True
+        configview.inactive = False     
+        await interaction.response.edit_message(embed=configembed, view=configview)
       else:
         await interaction.response.send_message("That's not your miner bro", ephemeral=True)
 
-    async def returntobasecb(interaction):
-      if interaction.user == ctx.author:
-        if str(ctx.author.id) in db["users"]:
-          if await usr.returntobase():
-            embed = discord.Embed(title="You Successfully returned to base!", color=discord.Colour.green())
-            
-            embed.set_thumbnail(url="https://i.ibb.co/Zcvr3ps/3dfd7071185c7e046ecdbf2baa1fcb5b.jpg")
-            embed.add_field(name="New y-level", value=await usr.get_user_data("y"))
-            await ctx.send(embed=embed)       
-            returnbtn.disabled = True
-            configbtn.disabled = True
-            
-            await interaction.response.edit_message(view=view)
+      async def returntomenucb(interaction):
+        configview.inactive = True
+        menuview.inactive = False
+        await interaction.response.edit_message(embed=menuembed, view=menuview)
 
-          else:
-            await interaction.response.send_message("You are already in your base lol", ephemeral=True)
-                      
+      rtmbtn.callback = returntomenucb
+
+    
+    async def returntobasecb(interaction):
+      if menuview.interaction_check(interaction=interaction):
+        if await usr.returntobase():
+          embed = discord.Embed(title="You Successfully returned to base!", color=discord.Colour.green())
+          embed.set_thumbnail(url="https://i.ibb.co/Zcvr3ps/3dfd7071185c7e046ecdbf2baa1fcb5b.jpg")
+          embed.add_field(name="New y-level", value=await usr.get_user_data("y"))
+          await ctx.send(embed=embed)       
+          rtbbtn.disabled = True
+          configbtn.disabled = True
+            
+          await interaction.response.edit_message(view=menuview)
+
         else:
-          await usr.create_account()
-          await interaction.response.send_message("Created a Miner for you!")
+          await interaction.response.send_message("You are already in your base lol", ephemeral=True)
       else:
         await interaction.response.send_message("That's not your miner bro", ephemeral=True)
 
   
-    returnbtn.callback = returntobasecb
+    rtbbtn.callback = returntobasecb
     configbtn.callback = configcb
 
 
