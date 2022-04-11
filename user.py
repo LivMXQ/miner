@@ -71,6 +71,10 @@ class User:
       return value
     else:
       return None
+
+  async def delete_user(self):
+    db["users"].pop(str(self.user.id))
+    return True
   
   
     

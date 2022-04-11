@@ -51,7 +51,7 @@ class Miner(commands.Cog):
       if user_id == "789359497894035456":
         return True
       else:
-        if user_id in cooldowns:
+        if cooldowns and user_id in cooldowns:
           bucket = cooldowns[user_id].get_bucket(ctx.message)
           retry_after = bucket.update_rate_limit()
           if retry_after:
@@ -198,7 +198,11 @@ class Miner(commands.Cog):
     rtbbtn.callback = returntobasecb
     configbtn.callback = configcb
 
-
+  @commands.command(name="createaccount", aliases=["start", "create"])
+  async def createaccount(self, ctx):
+    usr = user.User(ctx.author)
+    await usr.create_account()
+    await ctx.send("Created a miner for you!")
     
   @commands.command(name="inventory",aliases=["inv"])
   async def inventory(self, ctx):  
@@ -218,22 +222,26 @@ class Miner(commands.Cog):
       await usr.create_account()
       await ctx.send("Created a Miner for you!")
 
-  @commands.command(name="info")
-  async def info(self, ctx, *args):
-    if args:
-      await ctx.send("Not a thing yet lol")
-    else:
-      embed = discord.Embed(title="Info", description="List of items", color=discord.Colour.random())
-      itemlist = []
-      for key in resource.category:
-        dict = resource.category[key]
-        for key1 in dict:
-          itemlist.append(dict[key1])
-        embed.add_field(name=key, value="".join(itemlist), inline=False)
-        itemlist = []
+  
+  @commands.command(name="deleteaccount")
+  async def deleteaccount(self,ctx):
+    usr = user.User(ctx.author)
+    cfmbtn = Button(label="CONFIRM", style=discord.ButtonStyle.danger)
+    cfmview = view_timeout(timeout=10, ctx=ctx)
+    cfmview.add_item(cfmbtn)
+    await ctx.send("Are you ABSOLUTELY SURE you want to delete your account PERMANANTLY")
+    msg = await ctx.send("This action CANNOT be undone", view=cfmview)
+    cfmview.message = msg
+    
+
+    async def cfmcb(interaction):
+      await usr.delete_user()
+      cfmbtn.disabled = True
+      await ctx.send("You deleted your account );")
+      await interaction.response.edit_message(view=cfmview)
+
+    cfmbtn.callback = cfmcb
       
-      embed.set_footer(text=";info <Item_Id> for more details")
-      await ctx.send(embed=embed)
 
 def setup(bot: commands.bot):
   bot.add_cog(Miner(bot))
