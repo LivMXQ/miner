@@ -48,9 +48,10 @@ class User:
       
   async def create_account(self):
     db["users"][str(self.user.id)] = {'y': 64, 'inventory': {}, 'pickaxe': ['wooden_pickaxe', {}, 60], 'config': {'direction': 'down'}, "story":0}
-    role = discord.utils.get(self.user.guild.roles, name="minor")
-    miner.initialize_cooldowns()
-    await self.user.add_roles(role)
+    miner.initialize_cooldowns(miner.cooldowns)
+    if isinstance(self.user, discord.Member):
+      role = discord.utils.get(self.user.guild.roles, name="minor")
+      await self.user.add_roles(role)
     return True
     
   async def update_user_data(self, type, *value):

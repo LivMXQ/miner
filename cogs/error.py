@@ -1,5 +1,9 @@
-from cogs.miner import UserNotInDb
 from discord.ext import commands
+
+class UserNotInDb(commands.CommandError):
+  def __init__(self, user, message="User is not found in the database"):
+    self.message = message
+    super().__init__(self.message)
 
 class Error(commands.Cog):  
   
