@@ -2,15 +2,21 @@ import discord
 import resource
 import user
 import random
+import checks
 from replit import db
 from discord.ext import commands
 from discord.ui import Button, Select, View
 
-def initialize_cooldowns():  # This function still needs to be called somewhere.
-    for i in db["users"]:
-      user_id = i
-      duration = 17.5
-      cooldowns[user_id] = commands.CooldownMapping.from_cooldown(1, duration, commands.BucketType.user)
+def initialize_cooldowns():
+  for i in db["users"]:
+    user_id = i
+    duration = 17.5
+    cooldowns[user_id] = commands.CooldownMapping.from_cooldown(1, duration, commands.BucketType.user)
+
+class UserNotInDb(commands.CommandError):
+  def __init__(self, user, message="User is not found in the database"):
+    self.message = message
+    super().__init__(self.message)
 
 class view_timeout(View):
   def __init__(self, timeout, ctx):
@@ -51,17 +57,16 @@ class Miner(commands.Cog):
       if user_id == "789359497894035456":
         return True
       else:
-        if cooldowns and user_id in cooldowns:
+        if user_id in cooldowns:
           bucket = cooldowns[user_id].get_bucket(ctx.message)
           retry_after = bucket.update_rate_limit()
           if retry_after:
             raise commands.CommandOnCooldown(bucket, retry_after, commands.BucketType.user)
           return True
         else:
-          usr = user.User(ctx.author)
-          await usr.create_account()
-          await ctx.send("Created a minor for you!")
+          raise UserNotInDb(ctx.author)
           return True
+
     return commands.check(predicate)
 
 
@@ -117,13 +122,12 @@ class Miner(commands.Cog):
   @check_cooldown()
   async def mine(self, ctx):
     usr = user.User(ctx.author)
-    if str(ctx.author.id) in db["users"]:
+    if await usr.check_if_in_db():
       embed = await self.minefn(ctx)
       await ctx.send(embed=embed) 
  
     else:
-      await usr.create_account()
-      await ctx.send("Created a Miner for you!")
+      raise UserNotInDb(ctx.author)
 
   async def menufn(self, ctx):
     usr = user.User(ctx.author)
@@ -136,7 +140,7 @@ class Miner(commands.Cog):
   @commands.command(name="menu")
   async def menu(self, ctx):
     usr = user.User(ctx.author)
-    if str(ctx.author.id) in db["users"]:
+    if usr.check_if_in_db():
       menuembed = await self.menufn(ctx)
       rtbbtn = Button(label="Return to base", style=discord.ButtonStyle.primary, emoji="🏡")
       configbtn = Button(label="Mine settings", style=discord.ButtonStyle.primary, emoji="⚙")
@@ -157,8 +161,7 @@ class Miner(commands.Cog):
       menuview.message = menumessage
       configview.message = menumessage
     else:
-      await usr.create_account()
-      await ctx.send("Created a Miner for you!")
+      raise UserNotInDb(ctx.author)
 
 
     async def configcb(interaction):
@@ -178,31 +181,37 @@ class Miner(commands.Cog):
 
     
     async def returntobasecb(interaction):
-      if menuview.interaction_check(interaction=interaction):
-        if await usr.returntobase():
-          embed = discord.Embed(title="You Successfully returned to base!", color=discord.Colour.green())
-          embed.set_thumbnail(url="https://i.ibb.co/Zcvr3ps/3dfd7071185c7e046ecdbf2baa1fcb5b.jpg")
-          embed.add_field(name="New y-level", value=await usr.get_user_data("y"))
-          await ctx.send(embed=embed)       
-          rtbbtn.disabled = True
-          configbtn.disabled = True
-            
-          await interaction.response.edit_message(view=menuview)
-
+      if usr.check_if_in_db():
+        if menuview.interaction_check(interaction=interaction):
+          if await usr.returntobase():
+            embed = discord.Embed(title="You Successfully returned to base!", color=discord.Colour.green())
+            embed.set_thumbnail(url="https://i.ibb.co/Zcvr3ps/3dfd7071185c7e046ecdbf2baa1fcb5b.jpg")
+            embed.add_field(name="New y-level", value=await usr.get_user_data("y"))
+            await ctx.send(embed=embed)       
+            rtbbtn.disabled = True
+            configbtn.disabled = True
+              
+            await interaction.response.edit_message(view=menuview)
+  
+          else:
+            await interaction.response.send_message("You are already in your base lol", ephemeral=True)
         else:
-          await interaction.response.send_message("You are already in your base lol", ephemeral=True)
+          await interaction.response.send_message("That's not your miner bro", ephemeral=True)
       else:
-        await interaction.response.send_message("That's not your miner bro", ephemeral=True)
+        raise UserNotInDb(ctx.author)
 
   
     rtbbtn.callback = returntobasecb
     configbtn.callback = configcb
 
+  
   @commands.command(name="createaccount", aliases=["start", "create"])
+  @commands.is_owner()
   async def createaccount(self, ctx):
     usr = user.User(ctx.author)
     await usr.create_account()
     await ctx.send("Created a miner for you!")
+
     
   @commands.command(name="inventory",aliases=["inv"])
   async def inventory(self, ctx):  
@@ -219,8 +228,7 @@ class Miner(commands.Cog):
       embed.set_footer(text="yes")
       await ctx.send(embed=embed)
     else:
-      await usr.create_account()
-      await ctx.send("Created a Miner for you!")
+      raise UserNotInDb(ctx.author)
 
   
   @commands.command(name="deleteaccount")

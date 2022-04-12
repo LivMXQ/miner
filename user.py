@@ -54,7 +54,7 @@ class User:
     return True
     
   async def update_user_data(self, type, *value):
-    if str(self.user.id) in db["users"]:
+    if await self.check_if_in_db():
       if len(value) == 1:
         db["users"][str(self.user.id)][type] = value[0]
         return True
@@ -66,11 +66,17 @@ class User:
       return False
     
   async def get_user_data(self, type):
-    if str(self.user.id) in db["users"]:
+    if await self.check_if_in_db():
       value = db["users"][str(self.user.id)][type]
       return value
     else:
-      return None
+      return False
+
+  async def check_if_in_db(self):
+    if str(self.user.id) in db["users"]:
+      return True
+    else:
+      return False
 
   async def delete_user(self):
     db["users"].pop(str(self.user.id))

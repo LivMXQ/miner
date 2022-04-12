@@ -1,4 +1,4 @@
-import time
+from cogs.miner import UserNotInDb
 from discord.ext import commands
 
 class Error(commands.Cog):  
@@ -28,10 +28,15 @@ class Error(commands.Cog):
     elif isinstance(error, commands.NotOwner):
       message = "You are not the owner of the bot!"
       await ctx.reply(content=message)
+
+    elif isinstance(error, UserNotInDb):
+      message = "You do not have a Miner yet! Create a Miner using ;createaccount"
+      print("yes")
+      await ctx.reply(content=message)
       
     else:
-      message = f"! Something went wrong while running the command ):"
-      print(error)
+      message = f"!Something went wrong while running the command ):"
+      print(error, type(error))
       await ctx.reply(content=message)
 
 def setup(bot: commands.Bot):
