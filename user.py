@@ -50,8 +50,11 @@ class User:
     db["users"][str(self.user.id)] = {'y': 64, 'inventory': {}, 'pickaxe': ['wooden_pickaxe', {}, 60], 'config': {'direction': 'down'}, "story":0}
     miner.initialize_cooldowns(miner.cooldowns)
     if isinstance(self.user, discord.Member):
-      role = discord.utils.get(self.user.guild.roles, name="minor")
-      await self.user.add_roles(role)
+      try:
+        role = discord.utils.get(self.user.guild.roles, name="Minor ⛏️")
+        await self.user.add_roles(role)
+      except:
+        print("WARN: Minor role not granted on account create")
     return True
     
   async def update_user_data(self, type, *value):

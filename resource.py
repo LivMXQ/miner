@@ -96,7 +96,7 @@ async def mine_loot(y):
     
 
 oreloot64 = {
-"Cobblestone": 1476,
+"Cobblestone": 2014,
 "Coal": 276, 
 "Copper_Ingot": 216,
 "Iron_Ingot": 30,  
@@ -105,7 +105,7 @@ oreloot64 = {
 }
 
 oreloot48 = {
-"Cobblestone": 1398,
+"Cobblestone": 1936,
 "Coal": 234, 
 "Copper_Ingot": 294,
 "Iron_Ingot": 84,  
@@ -114,7 +114,7 @@ oreloot48 = {
 }
 
 oreloot32 = {
-"Cobblestone": 1398,
+"Cobblestone": 2092,
 "Coal": 132, 
 "Copper_Ingot": 216,
 "Iron_Ingot": 114,  
@@ -123,7 +123,7 @@ oreloot32 = {
 }
 
 oreloot16 = {
-"Cobblestone": 1476,
+"Cobblestone": 2014,
 "Coal": 66, 
 "Copper_Ingot": 174,
 "Iron_Ingot": 264,  
@@ -133,7 +133,7 @@ oreloot16 = {
 }
 
 oreloot0 = {
-"Cobbled_Deepslate": 1632,
+"Cobbled_Deepslate": 2170,
 "Copper_Ingot": 72,
 "Iron_Ingot": 162,  
 "Gold_Ingot": 54,
@@ -144,7 +144,7 @@ oreloot0 = {
 }
 
 oreloot_16 = {
-"Cobbled_Deepslate": 1766,
+"Cobbled_Deepslate": 2304,
 "Iron_Ingot": 84,  
 "Gold_Ingot": 84,
 "Lapis_Lazuli": 48,
@@ -153,7 +153,7 @@ oreloot_16 = {
 }
 
 oreloot_32 = {
-"Cobbled_Deepslate": 1860,
+"Cobbled_Deepslate": 2398,
 "Iron_Ingot": 36,  
 "Gold_Ingot": 54,
 "Lapis_Lazuli": 24,
@@ -162,7 +162,7 @@ oreloot_32 = {
 }
 
 oreloot_48 = {
-"Cobbled_Deepslate": 1758,
+"Cobbled_Deepslate": 2316,
 "Iron_Ingot": 30,  
 "Gold_Ingot": 24,
 "Lapis_Lazuli": 24,
@@ -171,7 +171,7 @@ oreloot_48 = {
 }
 
 oreloot_54 = {
-"Cobbled_Deepslate": 1674,
+"Cobbled_Deepslate": 2212,
 "Iron_Ingot": 30,  
 "Gold_Ingot": 48,
 "Lapis_Lazuli": 24,

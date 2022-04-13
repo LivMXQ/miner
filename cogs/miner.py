@@ -20,6 +20,7 @@ class view_timeout(View):
   def __init__(self, timeout, ctx):
     super().__init__(timeout=timeout)
     self.inactive = False
+    self.registered = list()
     self.ctx = ctx
    
   async def on_timeout(self):
@@ -37,6 +38,13 @@ class view_timeout(View):
       return False
     else:
       return True
+
+  async def register(self):
+    self.registered.append(self)
+
+  async def disableothers(self):
+    for i in self.registered:
+      i.inactive = True
 
 
 class Miner(commands.Cog):
@@ -117,7 +125,7 @@ class Miner(commands.Cog):
   async def distrubution(self, ctx):
     embed = discord.Embed(title="Miner Ore Distributing Chart", color=discord.Colour.random())
     embed.set_image(url="https://i.ibb.co/Rg90Qnn/b3bak5eige381-png.png")
-    await ctx.send(embed=embed)
+    await ctx.reply(embed=embed, mention_author=False)
 
 
   
@@ -141,46 +149,61 @@ class Miner(commands.Cog):
   @check_if_in_db()
   async def menu(self, ctx):
     usr = user.User(ctx.author)
-   
+  
     menuembed = await self.menufn(ctx)
     rtbbtn = Button(label="Return to base", style=discord.ButtonStyle.primary, emoji="🏡")
-    configbtn = Button(label="Mine settings", style=discord.ButtonStyle.primary, emoji="⚙")
-    configembed = discord.Embed(title=f"{ctx.author.name}'s configurations menu")
-    config = await usr.get_user_data("config")
-    print(config)
-    configselect = Select(options=[
-      discord.SelectOption(label="direction")
-    ])
-    rtmbtn = Button(label="Go back", style=discord.ButtonStyle.primary, emoji="🔙")
+    configbtn = Button(label="Miner configurations", style=discord.ButtonStyle.primary, emoji="⚙")    
+       
     menuview = view_timeout(timeout=10, ctx=ctx)
-    configview = view_timeout(timeout=10, ctx=ctx)
     menuview.add_item(configbtn)
     menuview.add_item(rtbbtn)
-    configview.add_item(configselect)
-    configview.add_item(rtmbtn)
-    menumessage = await ctx.send(embed=menuembed, view=menuview)
+       
+    menumessage = await ctx.reply(embed=menuembed, view=menuview, mention_author=False)
     menuview.message = menumessage
-    configview.message = menumessage
+    
 
-
-    async def configcb(interaction):
+    async def configbtncb(interaction):
       if await menuview.interaction_check(interaction=interaction):
+        config = await usr.get_user_data("config")
+        print(config)
+        configembed = discord.Embed(title=f"{ctx.author.name}'s configurations menu")
+        rtmbtn = Button(label="Go back", style=discord.ButtonStyle.primary, emoji="🔙")
+        configselect = Select(options=[
+      discord.SelectOption(label="Mining Direction")
+    ])
+        configview = view_timeout(timeout=10, ctx=ctx)
+        configview.add_item(configselect)
+        configview.add_item(rtmbtn)
+        configview.message = menumessage
+        for i in config:
+          configembed.add_field(name=i, value=config[i])
         menuview.inactive = True
         configview.inactive = False     
         await interaction.response.edit_message(embed=configembed, view=configview)
+
+        async def configselectcb(interaction):
+          option = configselect.values[0]
+          if option == "Mining Direction":
+            optionembed = discord.Embed(title=f"{ctx.author.name}'s configurations menu", name="Mining Direction")
+            optionembed.add_field(name="Currently configured to", value=config["Mining Direction"])
+            upbtn = Button(label="Mine up!")
+            downbtn = Button(lable="Mine down!")
+
+        configselect.callback = configselectcb
+
       else:
         await interaction.response.send_message("That's not your miner bro", ephemeral=True)
 
-      async def returntomenucb(interaction):
+      async def returntomenubtncb(interaction):
         configview.inactive = True
         menuview.inactive = False
         await interaction.response.edit_message(embed=menuembed, view=menuview)
 
-      rtmbtn.callback = returntomenucb
+      rtmbtn.callback = returntomenubtncb
 
     
     async def returntobasecb(interaction):
-      if menuview.interaction_check(interaction=interaction):
+      if await menuview.interaction_check(interaction=interaction):
         if await usr.returntobase():
           embed = discord.Embed(title="You Successfully returned to base!", color=discord.Colour.green())
           embed.set_thumbnail(url="https://i.ibb.co/Zcvr3ps/3dfd7071185c7e046ecdbf2baa1fcb5b.jpg")
@@ -198,7 +221,7 @@ class Miner(commands.Cog):
 
   
     rtbbtn.callback = returntobasecb
-    configbtn.callback = configcb
+    configbtn.callback = configbtncb
 
     
   @commands.command(name="inventory",aliases=["inv"])
@@ -219,14 +242,15 @@ class Miner(commands.Cog):
   @commands.command(name="createaccount", aliases=["start", "create"])
   async def createaccount(self, ctx):
     usr = user.User(ctx.author)
-    if usr.check_if_in_db:
-      await ctx.send("You already have an account bro.")
+    if await usr.check_if_in_db():
+      await ctx.reply("You already have an account bro.")
     else:
       await usr.create_account()
-      await ctx.send("Created a miner for you!")
+      await ctx.reply("Created a miner for you!", mention_author=False)
 
   
   @commands.command(name="deleteaccount")
+  @check_if_in_db()
   async def deleteaccount(self,ctx):
     usr = user.User(ctx.author)
     cfmbtn = Button(label="CONFIRM", style=discord.ButtonStyle.danger)
