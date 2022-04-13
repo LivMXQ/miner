@@ -8,6 +8,7 @@ from discord.ext import commands
 from discord.ui import Button, Select, View
 
 cooldowns = dict()
+registeredviews = list()
 
 def initialize_cooldowns(kooldowns):
   for i in db["users"]:
@@ -20,7 +21,6 @@ class view_timeout(View):
   def __init__(self, timeout, ctx):
     super().__init__(timeout=timeout)
     self.inactive = False
-    self.registered = list()
     self.ctx = ctx
    
   async def on_timeout(self):
@@ -40,11 +40,12 @@ class view_timeout(View):
       return True
 
   async def register(self):
-    self.registered.append(self)
+    registeredviews.append(self)
 
-  async def disableothers(self):
-    for i in self.registered:
+  async def inactiveothers(self):
+    for i in registeredviews:
       i.inactive = True
+    self.inactive = False
 
 
 class Miner(commands.Cog):
@@ -155,6 +156,7 @@ class Miner(commands.Cog):
     configbtn = Button(label="Miner configurations", style=discord.ButtonStyle.primary, emoji="⚙")    
        
     menuview = view_timeout(timeout=10, ctx=ctx)
+    await menuview.register()
     menuview.add_item(configbtn)
     menuview.add_item(rtbbtn)
        
@@ -172,19 +174,19 @@ class Miner(commands.Cog):
       discord.SelectOption(label="Mining Direction")
     ])
         configview = view_timeout(timeout=10, ctx=ctx)
+        await configview.register()
         configview.add_item(configselect)
         configview.add_item(rtmbtn)
         configview.message = menumessage
         for i in config:
           configembed.add_field(name=i, value=config[i])
-        menuview.inactive = True
-        configview.inactive = False     
+        await configview.inactiveothers() 
         await interaction.response.edit_message(embed=configembed, view=configview)
 
         async def configselectcb(interaction):
           option = configselect.values[0]
           if option == "Mining Direction":
-            optionembed = discord.Embed(title=f"{ctx.author.name}'s configurations menu", name="Mining Direction")
+            optionembed = discord.Embed(title=f"{ctx.author.name}'s configurations menu", description="Mining Direction")
             optionembed.add_field(name="Currently configured to", value=config["Mining Direction"])
             upbtn = Button(label="Mine up!")
             downbtn = Button(lable="Mine down!")
@@ -195,8 +197,7 @@ class Miner(commands.Cog):
         await interaction.response.send_message("That's not your miner bro", ephemeral=True)
 
       async def returntomenubtncb(interaction):
-        configview.inactive = True
-        menuview.inactive = False
+        await configview.inactiveothers()
         await interaction.response.edit_message(embed=menuembed, view=menuview)
 
       rtmbtn.callback = returntomenubtncb
