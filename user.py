@@ -1,4 +1,5 @@
 import discord
+import random
 from cogs import miner
 from replit import db
 
@@ -85,7 +86,26 @@ class User:
   async def delete_user(self):
     db["users"].pop(str(self.user.id))
     return True
-  
+
+  async def change_y(self):
+    config = await self.get_user_data("config")
+    if config["Mining Direction"] == "Down" and await self.get_user_data("y")>=-60:
+      await self.update_user_data("y", await self.get_user_data("y") - random.randrange(0,5))
+    elif config["Mining Direction"] == "Down" and await self.get_user_data("y")==-61:
+      await self.update_user_data("y", await self.get_user_data("y") - random.randrange(0,4))
+    elif config["Mining Direction"] == "Down" and await self.get_user_data("y")==-62:
+      await self.update_user_data("y", await self.get_user_data("y") - random.randrange(0,3))
+    elif config["Mining Direction"] == "Down" and await self.get_user_data("y")==-63:
+      await self.update_user_data("y", await self.get_user_data("y") - random.randrange(0,2))
+    elif config["Mining Direction"] == "Up" and await self.get_user_data("y")<=60:
+      await self.update_user_data("y", await self.get_user_data("y") + random.randrange(0,5))
+    elif config["Mining Direction"] == "Up" and await self.get_user_data("y")==61:
+      await self.update_user_data("y", await self.get_user_data("y") + random.randrange(0,4))
+    elif config["Mining Direction"] == "Up" and await self.get_user_data("y")==62:
+      await self.update_user_data("y", await self.get_user_data("y") + random.randrange(0,3))
+    elif config["Mining Direction"] == "Up" and await self.get_user_data("y")==63:
+      await self.update_user_data("y", await self.get_user_data("y") + random.randrange(0,2))
+    return True
   
     
 

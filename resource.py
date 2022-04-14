@@ -1,20 +1,20 @@
 import random
 
-
-def uncommon():
-  return 7452273
-
-def rare():
-  return 4092090
-
-def epic():
-  return 13330369
-  
-def legendary():
-  return 16747803
-
-def mythic():
-  return 16472355
+def getraritycolor(rarity):
+  if rarity == "common":
+    return 14671837
+  elif rarity == "uncommon":
+    return 7452273
+  elif rarity == "rare":
+    return 4092090
+  elif rarity == "epic":
+    return 13330369
+  elif rarity == "legendary":
+    return 16747803
+  elif rarity == "mythic":
+    return 16472355
+  else:
+    return None
 
 class Item():
   def __init__(self):

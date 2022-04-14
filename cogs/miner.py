@@ -1,7 +1,6 @@
 import discord
 import resource
 import user
-import random
 from replit import db
 from cogs.error import UserNotInDb
 from discord.ext import commands
@@ -95,28 +94,11 @@ class Miner(commands.Cog):
            
     else:
       multipler = await usr.get_multipler()
-      config = await usr.get_user_data("config")
-      if config["Mining Direction"] == "Down" and await usr.get_user_data("y")>=-60:
-        await usr.update_user_data("y", await usr.get_user_data("y") - random.randrange(0,5))
-      elif config["Mining Direction"] == "Down" and await usr.get_user_data("y")==-61:
-        await usr.update_user_data("y", await usr.get_user_data("y") - random.randrange(0,4))
-      elif config["Mining Direction"] == "Down" and await usr.get_user_data("y")==-62:
-        await usr.update_user_data("y", await usr.get_user_data("y") - random.randrange(0,3))
-      elif config["Mining Direction"] == "Down" and await usr.get_user_data("y")==-63:
-        await usr.update_user_data("y", await usr.get_user_data("y") - random.randrange(0,2))
-      elif config["Mining Direction"] == "Up" and await usr.get_user_data("y")<=60:
-        await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,5))
-      elif config["Mining Direction"] == "Up" and await usr.get_user_data("y")==61:
-        await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,4))
-      elif config["Mining Direction"] == "Up" and await usr.get_user_data("y")==62:
-        await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,3))
-      elif config["Mining Direction"] == "Up" and await usr.get_user_data("y")==63:
-        await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,2))
-      
+      await usr.change_y()
       name = self.allitems[loot]["name"]
       id = self.allitems[loot]["id"]
       rarity = self.allitems[loot]["rarity"]
-      embed = discord.Embed(title=f"{ctx.author.name}'s booty", colour=resource.uncommon())
+      embed = discord.Embed(title=f"{ctx.author.name}'s booty", colour=resource.getraritycolor(rarity))
       embed.set_thumbnail(url="https://i.ibb.co/f8Lsxkb/Small-Mining-Sack.jpg")
       embed.add_field(value=f"You swung your pickaxe and got {multipler} {name} {id}", name='\u200b')
       y = await usr.get_user_data("y")
