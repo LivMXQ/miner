@@ -18,8 +18,9 @@ def initialize_cooldowns(kooldowns):
 
 
 class view_timeout(View):
-  def __init__(self, timeout, ctx):
+  def __init__(self, ctx, timeout=20):
     super().__init__(timeout=timeout)
+    self.register()
     self.inactive = False
     self.ctx = ctx
    
@@ -39,13 +40,17 @@ class view_timeout(View):
     else:
       return True
 
-  async def register(self):
+  def register(self):
     registeredviews.append(self)
 
-  async def inactiveothers(self):
+  def setactive(self):
     for i in registeredviews:
       i.inactive = True
     self.inactive = False
+
+  def disable_all(self):
+    for i in self.children:
+      i.disabled = True
 
 
 class Miner(commands.Cog):
@@ -91,26 +96,28 @@ class Miner(commands.Cog):
     else:
       multipler = await usr.get_multipler()
       config = await usr.get_user_data("config")
-      if config["direction"] == "down" and await usr.get_user_data("y")>=-60:
+      if config["Mining Direction"] == "Down" and await usr.get_user_data("y")>=-60:
         await usr.update_user_data("y", await usr.get_user_data("y") - random.randrange(0,5))
-      elif config["direction"] == "down" and await usr.get_user_data("y")==-61:
+      elif config["Mining Direction"] == "Down" and await usr.get_user_data("y")==-61:
         await usr.update_user_data("y", await usr.get_user_data("y") - random.randrange(0,4))
-      elif config["direction"] == "down" and await usr.get_user_data("y")==-62:
+      elif config["Mining Direction"] == "Down" and await usr.get_user_data("y")==-62:
         await usr.update_user_data("y", await usr.get_user_data("y") - random.randrange(0,3))
-      elif config["direction"] == "down" and await usr.get_user_data("y")==-63:
+      elif config["Mining Direction"] == "Down" and await usr.get_user_data("y")==-63:
         await usr.update_user_data("y", await usr.get_user_data("y") - random.randrange(0,2))
-      elif config["direction"] == "up" and await usr.get_user_data("y")<=60:
+      elif config["Mining Direction"] == "Up" and await usr.get_user_data("y")<=60:
         await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,5))
-      elif config["direction"] == "down" and await usr.get_user_data("y")==61:
+      elif config["Mining Direction"] == "Up" and await usr.get_user_data("y")==61:
         await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,4))
-      elif config["direction"] == "down" and await usr.get_user_data("y")==62:
+      elif config["Mining Direction"] == "Up" and await usr.get_user_data("y")==62:
         await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,3))
-      elif config["direction"] == "down" and await usr.get_user_data("y")==63:
+      elif config["Mining Direction"] == "Up" and await usr.get_user_data("y")==63:
         await usr.update_user_data("y", await usr.get_user_data("y") + random.randrange(0,2))
-      embed = discord.Embed(title=f"{ctx.author.name}'s booty", colour=resource.uncommon())
-      embed.set_thumbnail(url="https://i.ibb.co/f8Lsxkb/Small-Mining-Sack.jpg")
+      
       name = self.allitems[loot]["name"]
       id = self.allitems[loot]["id"]
+      rarity = self.allitems[loot]["rarity"]
+      embed = discord.Embed(title=f"{ctx.author.name}'s booty", colour=resource.uncommon())
+      embed.set_thumbnail(url="https://i.ibb.co/f8Lsxkb/Small-Mining-Sack.jpg")
       embed.add_field(value=f"You swung your pickaxe and got {multipler} {name} {id}", name='\u200b')
       y = await usr.get_user_data("y")
       embed.set_footer(text=f"new y-level ─  {y}")
@@ -153,10 +160,10 @@ class Miner(commands.Cog):
   
     menuembed = await self.menufn(ctx)
     rtbbtn = Button(label="Return to base", style=discord.ButtonStyle.primary, emoji="🏡")
-    configbtn = Button(label="Miner configurations", style=discord.ButtonStyle.primary, emoji="⚙")    
+    configbtn = Button(label="Miner Configurations", style=discord.ButtonStyle.primary, emoji="⚙")    
        
     menuview = view_timeout(timeout=10, ctx=ctx)
-    await menuview.register()
+    configview = view_timeout(timeout=10, ctx=ctx)
     menuview.add_item(configbtn)
     menuview.add_item(rtbbtn)
        
@@ -169,38 +176,42 @@ class Miner(commands.Cog):
         config = await usr.get_user_data("config")
         print(config)
         configembed = discord.Embed(title=f"{ctx.author.name}'s configurations menu")
-        rtmbtn = Button(label="Go back", style=discord.ButtonStyle.primary, emoji="🔙")
-        configselect = Select(options=[
-      discord.SelectOption(label="Mining Direction")
-    ])
-        configview = view_timeout(timeout=10, ctx=ctx)
-        await configview.register()
+        rtmbtn = Button(label="Go Back", style=discord.ButtonStyle.primary, emoji="🔙")
+        configselect = Select() 
         configview.add_item(configselect)
         configview.add_item(rtmbtn)
         configview.message = menumessage
         for i in config:
-          configembed.add_field(name=i, value=config[i])
-        await configview.inactiveothers() 
+          configselect.append_option(discord.SelectOption(label=i))
+          configembed.add_field(name=i, value=config[i])        
+        configview.setactive() 
         await interaction.response.edit_message(embed=configembed, view=configview)
+      else:
+        await interaction.response.send_message("That's not your miner bro", ephemeral=True)
 
         async def configselectcb(interaction):
           option = configselect.values[0]
           if option == "Mining Direction":
             optionembed = discord.Embed(title=f"{ctx.author.name}'s configurations menu", description="Mining Direction")
             optionembed.add_field(name="Currently configured to", value=config["Mining Direction"])
-            upbtn = Button(label="Mine up!")
-            downbtn = Button(lable="Mine down!")
+            upbtn = Button(label="Mine Up!", emoji="⬆")
+            downbtn = Button(lable="Mine Down!", emoji="⬇")
+            optionview = view_timeout(ctx)
+            optionview.add_item(upbtn)
+            optionview.add_item(downbtn)
+          elif option == "Compact Mode":
+            pass
+          optionview.message = await interaction.response.edit_message(embed=optionembed, view=optionview)
 
         configselect.callback = configselectcb
 
-      else:
-        await interaction.response.send_message("That's not your miner bro", ephemeral=True)
+      
 
-      async def returntomenubtncb(interaction):
-        await configview.inactiveothers()
-        await interaction.response.edit_message(embed=menuembed, view=menuview)
+        async def returntomenubtncb(interaction):
+          configview.setactive()
+          await interaction.response.edit_message(embed=menuembed, view=menuview)
 
-      rtmbtn.callback = returntomenubtncb
+        rtmbtn.callback = returntomenubtncb
 
     
     async def returntobasecb(interaction):
