@@ -1,4 +1,6 @@
 import random
+import user
+import discord
 
 def getraritycolor(rarity):
   if rarity == "common":
@@ -61,38 +63,50 @@ class Block(Item):
 
 
 
-async def mine_loot(y):
+async def mine_loot(member):
+  usr = user.User(member)
+  y = await usr.get_user_data("y")
   choice = "".join(random.choices(list(event.keys()), get_dict_value(event)))
   if choice == "event":
-    return ["event"]
+    loot = ["event"]
   elif choice =="ore":
     if y <= 64 and y > 48:
       loot = random.choices(list(oreloot64.keys()), get_dict_value(oreloot64))
-      return loot
     elif y <= 48 and y > 32:
-      loot = random.choices(list(oreloot48.keys()), get_dict_value(oreloot48))
-      return loot
+      loot = random.choices(list(oreloot48.keys()), get_dict_value(oreloot48)) 
     elif y <= 32 and y > 16:
-      loot = random.choices(list(oreloot32.keys()), get_dict_value(oreloot32))
-      return loot
+      loot = random.choices(list(oreloot32.keys()), get_dict_value(oreloot32))  
     elif y <= 16 and y > 0:
-      loot = random.choices(list(oreloot16.keys()), get_dict_value(oreloot16))
-      return loot
+      loot = random.choices(list(oreloot16.keys()), get_dict_value(oreloot16)) 
     elif y <= 0 and y > -16:
-      loot = random.choices(list(oreloot0.keys()), get_dict_value(oreloot0))
-      return loot
+      loot = random.choices(list(oreloot0.keys()), get_dict_value(oreloot0))   
     elif y <= -16 and y > -32:
       loot = random.choices(list(oreloot_16.keys()), get_dict_value(oreloot_16))
-      return loot
     elif y <= -32 and y > -48:
-      loot = random.choices(list(oreloot_32.keys()), get_dict_value(oreloot_32))
-      return loot
+      loot = random.choices(list(oreloot_32.keys()), get_dict_value(oreloot_32))  
     elif y <= -48 and y > -54:
-      loot = random.choices(list(oreloot_48.keys()), get_dict_value(oreloot_48))
-      return loot
+      loot = random.choices(list(oreloot_48.keys()), get_dict_value(oreloot_48))     
     elif y <= -54 and y > -65:
-      loot = random.choices(list(oreloot_54.keys()), get_dict_value(oreloot_54))
-      return loot
+      loot = random.choices(list(oreloot_54.keys()), get_dict_value(oreloot_54))      
+    loot = "".join(loot)
+  if loot == "event":
+    embed = discord.Embed(title=f"{member.name}'s event", color=discord.Colour.gold())         
+  else:
+    multipler = await usr.get_multipler()
+    await usr.change_y()
+    name = allitems[loot]["name"]
+    id = allitems[loot]["id"]
+    rarity = allitems[loot]["rarity"]
+    embed = discord.Embed(title=f"{member.name}'s booty", colour=getraritycolor(rarity))
+    embed.set_thumbnail(url="https://i.ibb.co/f8Lsxkb/Small-Mining-Sack.jpg")
+    embed.add_field(value=f"You swung your pickaxe and got {multipler} {name} {id}", name='\u200b')
+    y = await usr.get_user_data("y")
+    embed.set_footer(text=f"new y-level ─  {y}")
+      
+
+    inventory = user.Inventory(member)
+    await inventory.add_item(loot, multipler)
+  return embed
     
 
 oreloot64 = {

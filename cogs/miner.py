@@ -9,6 +9,7 @@ from discord.ui import Button, Select, View
 cooldowns = dict()
 registeredviews = list()
 
+
 def initialize_cooldowns(kooldowns):
   for i in db["users"]:
     user_id = i
@@ -17,7 +18,7 @@ def initialize_cooldowns(kooldowns):
 
 
 class view_timeout(View):
-  def __init__(self, ctx, timeout=20):
+  def __init__(self, ctx, timeout=10):
     super().__init__(timeout=timeout)
     self.register()
     self.inactive = False
@@ -26,9 +27,7 @@ class view_timeout(View):
   async def on_timeout(self):
     if self.inactive == False:
       for i in self.children:
-        child = i
-        child.disabled=True
-      
+        i.disabled=True
       await self.message.edit(view=self)
 
 
@@ -46,6 +45,7 @@ class view_timeout(View):
     for i in registeredviews:
       i.inactive = True
     self.inactive = False
+    return self
 
   def disable_all(self):
     for i in self.children:
@@ -57,6 +57,7 @@ class Miner(commands.Cog):
     self.bot = bot
     initialize_cooldowns(cooldowns)
     self.item = resource.Item()
+    self.currentview = None
     self.allitems = self.item.getallitems()
 
 
@@ -85,31 +86,7 @@ class Miner(commands.Cog):
       return True
     return commands.check(predicate)
 
-
-  async def minefn(self, ctx):
-    usr = user.User(ctx.author)
-    loot = "".join(await resource.mine_loot(await usr.get_user_data("y")))
-    if loot == "event":
-      embed = discord.Embed(title=f"{ctx.author.name}'s event", color=discord.Colour.gold())
-           
-    else:
-      multipler = await usr.get_multipler()
-      await usr.change_y()
-      name = self.allitems[loot]["name"]
-      id = self.allitems[loot]["id"]
-      rarity = self.allitems[loot]["rarity"]
-      embed = discord.Embed(title=f"{ctx.author.name}'s booty", colour=resource.getraritycolor(rarity))
-      embed.set_thumbnail(url="https://i.ibb.co/f8Lsxkb/Small-Mining-Sack.jpg")
-      embed.add_field(value=f"You swung your pickaxe and got {multipler} {name} {id}", name='\u200b')
-      y = await usr.get_user_data("y")
-      embed.set_footer(text=f"new y-level ─  {y}")
-      
-
-      inventory = user.Inventory(ctx.author)
-      await inventory.add_item(loot, multipler)
-    return embed
-    
-
+ 
     
   @commands.command(name="distribution", aliases=["dist"])
   async def distrubution(self, ctx):
@@ -123,99 +100,120 @@ class Miner(commands.Cog):
   @check_cooldown()
   @check_if_in_db()
   async def mine(self, ctx):
-    embed = await self.minefn(ctx)
+    embed = await resource.mine_loot(ctx.author)
     await ctx.reply(embed=embed, mention_author=False) 
 
-
-  async def menufn(self, ctx):
-    usr = user.User(ctx.author)
-    embed = discord.Embed(title=f"{ctx.author.name}'s miner menu", color=discord.Colour.random())
-    embed.add_field(name="current y-level", value=await usr.get_user_data("y"))
-    embed.set_image(url="https://tryhardguides.com/wp-content/uploads/2022/03/featured-clash-royale-miner-update-768x432.jpg")
-    
-    return embed
   
   @commands.command(name="menu")
   @check_if_in_db()
   async def menu(self, ctx):
     usr = user.User(ctx.author)
   
-    menuembed = await self.menufn(ctx)
-    rtbbtn = Button(label="Return to base", style=discord.ButtonStyle.primary, emoji="🏡")
-    configbtn = Button(label="Miner Configurations", style=discord.ButtonStyle.primary, emoji="⚙")    
-       
-    menuview = view_timeout(timeout=10, ctx=ctx)
-    configview = view_timeout(timeout=10, ctx=ctx)
+    menuembed = discord.Embed(title=f"{ctx.author.name}'s miner menu")
+    menuembed.add_field(name="current y-level", value=await usr.get_user_data("y"))
+    menuembed.set_image(url="https://tryhardguides.com/wp-content/uploads/2022/03/featured-clash-royale-miner-update-768x432.jpg")
+    rtbbtn = Button(label="Return to base", emoji="🏡")
+    configbtn = Button(label="Miner Configurations", emoji="⚙")   
+    endinteractionbtn = Button(label="End Interaction", row=1)
+    
+    menuview = view_timeout(ctx=ctx)
+    self.currentview = menuview.setactive()
     menuview.add_item(configbtn)
     menuview.add_item(rtbbtn)
-       
-    menumessage = await ctx.reply(embed=menuembed, view=menuview, mention_author=False)
-    menuview.message = menumessage
+    menuview.add_item(endinteractionbtn)
+    message = await ctx.reply(embed=menuembed, view=menuview, mention_author=False)
+    menuview.message = message
     
+    async def endinteractioncb(interaction):
+      self.currentview.disable_all()
+      await interaction.response.edit_message(view=self.currentview)
+      
+    endinteractionbtn.callback = endinteractioncb
 
     async def configbtncb(interaction):
-      if await menuview.interaction_check(interaction=interaction):
         config = await usr.get_user_data("config")
-        print(config)
         configembed = discord.Embed(title=f"{ctx.author.name}'s configurations menu")
-        rtmbtn = Button(label="Go Back", style=discord.ButtonStyle.primary, emoji="🔙")
+        rtmbtn = Button(label="Go Back", emoji="🔙")
         configselect = Select() 
-        configview.add_item(configselect)
-        configview.add_item(rtmbtn)
-        configview.message = menumessage
         for i in config:
           configselect.append_option(discord.SelectOption(label=i))
-          configembed.add_field(name=i, value=config[i])        
-        configview.setactive() 
+          configembed.add_field(name=i, value=config[i]) 
+        configview = view_timeout(ctx=ctx)
+        self.currentview = configview.setactive() 
+        configview.add_item(configselect)
+        configview.add_item(rtmbtn)
+        endinteractionbtn.row = 2
+        configview.add_item(endinteractionbtn)
+        configview.message = message
         await interaction.response.edit_message(embed=configembed, view=configview)
-      else:
-        await interaction.response.send_message("That's not your miner bro", ephemeral=True)
 
         async def configselectcb(interaction):
           option = configselect.values[0]
+          optionview = view_timeout(ctx)
+          self.currentview = optionview.setactive()
+          optionview.message = message
           if option == "Mining Direction":
             optionembed = discord.Embed(title=f"{ctx.author.name}'s configurations menu", description="Mining Direction")
             optionembed.add_field(name="Currently configured to", value=config["Mining Direction"])
             upbtn = Button(label="Mine Up!", emoji="⬆")
-            downbtn = Button(lable="Mine Down!", emoji="⬇")
-            optionview = view_timeout(ctx)
+            downbtn = Button(label="Mine Down!", emoji="⬇")
+            rtcbtn = Button(label="Go Back", emoji="🔙") 
             optionview.add_item(upbtn)
             optionview.add_item(downbtn)
+            optionview.add_item(rtcbtn)
+            optionview.add_item(endinteractionbtn)
+            
+            async def rtcbtncb(interaction):
+              self.currentview = configview.setactive()
+              await interaction.response.edit_message(embed=configembed, view=configview)
+            
+            async def upbtncb(interaction):
+              
+              await usr.update_user_data("config", "Mining Direction", "Up")
+              config = await usr.get_user_data("config")
+              optionembed.set_field_at(0, name="Currently configured to", value=config["Mining Direction"])  
+              await interaction.response.edit_message(embed=optionembed, view=optionview)
+              await interaction.followup.send(content=f"""You Mining Direction has been set to `{config["Mining Direction"]}`""", ephemeral=True)
+              
+            async def downbtncb(interaction):
+              await usr.update_user_data("config", "Mining Direction", "Down")
+              config = await usr.get_user_data("config")
+              optionembed.set_field_at(0, name="Currently configured to", value=config["Mining Direction"])  
+              await interaction.response.edit_message(embed=optionembed, view=optionview)
+              await interaction.followup.send(content=f"""You Mining Direction has been set to `{config["Mining Direction"]}`""", ephemeral=True)
+
+            rtcbtn.callback = rtcbtncb
+            upbtn.callback = upbtncb
+            downbtn.callback = downbtncb
+              
           elif option == "Compact Mode":
             pass
-          optionview.message = await interaction.response.edit_message(embed=optionembed, view=optionview)
+          
+          await interaction.response.edit_message(embed=optionembed, view=optionview)
 
         configselect.callback = configselectcb
-
-      
+        
 
         async def returntomenubtncb(interaction):
-          configview.setactive()
+          self.currentview = menuview.setactive()
           await interaction.response.edit_message(embed=menuembed, view=menuview)
 
         rtmbtn.callback = returntomenubtncb
 
     
     async def returntobasecb(interaction):
-      if await menuview.interaction_check(interaction=interaction):
-        if await usr.returntobase():
-          embed = discord.Embed(title="You Successfully returned to base!", color=discord.Colour.green())
-          embed.set_thumbnail(url="https://i.ibb.co/Zcvr3ps/3dfd7071185c7e046ecdbf2baa1fcb5b.jpg")
-          embed.add_field(name="New y-level", value=await usr.get_user_data("y"))
-          await ctx.send(embed=embed)       
-          rtbbtn.disabled = True
-          configbtn.disabled = True
-              
-          await interaction.response.edit_message(view=menuview)
-  
-        else:
-          await interaction.response.send_message("You are already in your base lol", ephemeral=True)
+      if await usr.returntobase():
+        menuview.disable_all()
+        await message.edit(view=menuview)
+        await interaction.response.send_message("You Successfully returned to base!", ephemeral=True)                
       else:
-        await interaction.response.send_message("That's not your miner bro", ephemeral=True)
-
-  
+        await interaction.response.send_message("You are already in your base lol", ephemeral=True)
+   
+      
+    
     rtbbtn.callback = returntobasecb
     configbtn.callback = configbtncb
+    
 
     
   @commands.command(name="inventory",aliases=["inv"])

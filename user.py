@@ -1,6 +1,6 @@
 import discord
 import random
-from cogs import miner
+import cogs.miner as miner
 from replit import db
 
 def get_all_users():
