@@ -10,8 +10,7 @@ class Error(commands.Cog):
   @commands.Cog.listener()
   async def on_command_error(self, ctx: commands.Context, error: commands.CommandError):
     if isinstance(error, commands.CommandNotFound):
-      message = f"The command you used is not found ):"
-      await ctx.reply(content=message)
+      pass
       
     elif isinstance(error, commands.CommandOnCooldown):
       message = f"This command is on cooldown. Try again after {round(error.retry_after, 1)} seconds."

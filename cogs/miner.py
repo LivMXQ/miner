@@ -64,7 +64,7 @@ class Miner(commands.Cog):
   def check_cooldown():
     async def predicate(ctx):
       user_id = str(ctx.author.id)
-      if user_id == "789359497894035456":
+      if user_id == "895289342497538059":
         return True
       else:
         if user_id in cooldowns:
@@ -173,23 +173,22 @@ class Miner(commands.Cog):
               config = await usr.get_user_data("config")
               optionembed.set_field_at(0, name="Currently configured to", value=config["Mining Direction"])  
               await interaction.response.edit_message(embed=optionembed, view=optionview)
-              await interaction.followup.send(content=f"""You Mining Direction has been set to `{config["Mining Direction"]}`""", ephemeral=True)
               
             async def downbtncb(interaction):
               await usr.update_user_data("config", "Mining Direction", "Down")
               config = await usr.get_user_data("config")
               optionembed.set_field_at(0, name="Currently configured to", value=config["Mining Direction"])  
               await interaction.response.edit_message(embed=optionembed, view=optionview)
-              await interaction.followup.send(content=f"""You Mining Direction has been set to `{config["Mining Direction"]}`""", ephemeral=True)
 
             rtcbtn.callback = rtcbtncb
             upbtn.callback = upbtncb
             downbtn.callback = downbtncb
+            await interaction.response.edit_message(embed=optionembed, view=optionview)
               
           elif option == "Compact Mode":
             pass
           
-          await interaction.response.edit_message(embed=optionembed, view=optionview)
+        
 
         configselect.callback = configselectcb
         
