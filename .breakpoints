@@ -1,12 +1,3 @@
 {
-  "files": {
-    "cogs/miner.py": [
-      {
-        "id": "6c6f0ea5-3389-49aa-92b5-c994aa3b3bc8",
-        "line": 3,
-        "version": 19331,
-        "index": 42
-      }
-    ]
-  }
+  "files": {}
 }

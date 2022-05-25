@@ -28,16 +28,16 @@ class Inventory:
       db["users"][str(self.user.id)]["inventory"][i] = self.dict[i]
 
 
-class User:
+class User: #all here
   def __init__(self, user):
     self.user = user
 
   
-  async def get_cooldown(self):
+  async def get_cooldown(self): #still working on this 
     return 17
 
 
-  async def get_multipler(self):
+  async def get_multipler(self): #still working on this
     return 1
 
   async def returntobase(self):
