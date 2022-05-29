@@ -48,7 +48,7 @@ class User: #all here
       return False
       
   async def create_account(self):
-    db["users"][str(self.user.id)] = {'y': 64, 'inventory': {}, 'pickaxe': ['wooden_pickaxe', {}, 60], 'config': {'Mining Direction': 'down', "Compact Mode": False}, "story":0}
+    db["users"][str(self.user.id)] = {'y': 64, 'inventory': {}, 'pickaxe': ['wooden_pickaxe', {}, 60], 'config': {'Mining Direction': 'down'}, "story":0}
     miner.initialize_cooldowns(miner.cooldowns)
     if isinstance(self.user, discord.Member):
       try:

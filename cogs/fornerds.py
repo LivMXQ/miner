@@ -13,7 +13,7 @@ class ForNerds(commands.Cog):
     dict = user.get_all_users()
     print(dict)
     
-    
+  
      
 
 def setup(bot: commands.bot):

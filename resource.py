@@ -62,7 +62,6 @@ class Block(Item):
         
 
 
-
 async def mine_loot(member):
   usr = user.User(member)
   y = await usr.get_user_data("y")
@@ -101,7 +100,7 @@ async def mine_loot(member):
     embed.set_thumbnail(url="https://i.ibb.co/f8Lsxkb/Small-Mining-Sack.jpg")
     embed.add_field(value=f"You swung your pickaxe and got {multipler} {name} {id}", name='\u200b')
     y = await usr.get_user_data("y")
-    embed.set_footer(text=f"new y-level ─  {y}")
+    embed.set_footer(text=f"new y-level ─ {y}")
       
 
     inventory = user.Inventory(member)
@@ -194,8 +193,8 @@ oreloot_54 = {
 }
 
 
-allitems = {"Coal":{"id":"<:Coal:954584616734437486>", "catagory":"Ore", "rarity":"uncommon", "name":"Coal"},
-"Copper_Ingot":{"id":"<:Copper_Ingot:954584616763789392>", "catagory":"Ore", "rarity":"uncommon","name":"Copper Ingot"},
+allitems = {"Coal":{"id":"<:Coal:954584616734437486>", "catagory":"Ore", "rarity":"uncommon", "name":"Coal", "drop_multipler":1, "buy_price": 10, "sell_price": 7},
+"Copper_Ingot":{"id":"<:Copper_Ingot:954584616763789392>", "catagory":"Ore", "rarity":"uncommon","name":"Copper Ingot", "drop_multipler":random.randint(2,4), "buy_price": 20, "sell_price" : 10},
 "Iron_Ingot":{"id":"<:Iron_Ingot:954584616742846554>", "catagory":"Ore", "rarity":"uncommon", "name":"Iron Ingot"},  
 "Gold_Ingot":{"id":"<:Gold_Ingot:954584616738619462>", "catagory":"Ore", "rarity":"rare","name":"Gold Ingot"}, 
 "Lapis_Lazuli":{"id":"<:Lapis_Lazuli:954584616780570684>", "catagory":"Ore", "rarity":"epic","name":"Lapis"},
@@ -225,6 +224,8 @@ allitems = {"Coal":{"id":"<:Coal:954584616734437486>", "catagory":"Ore", "rarity
 
 event = {"event": 6.284, "ore": 93.716}
 
+def ore_drop_multipler(ore):
+  pass
 
 def get_dict_value(dict):
     list = []
@@ -232,4 +233,23 @@ def get_dict_value(dict):
         list.append(dict[key])
           
     return list
-  
+
+
+### NOT FINAL ONLY REFERENCE ###
+#Redstone buy_price = 3, 
+#Coal buy_price = 8
+#Lapis buy_price = 5
+#iron buy_price = 20 
+#gold buy_price = 50 
+#emerald buy_price = 100 
+#diamond buy_price = 250 
+
+"""Coal, diamond, emerald, their respective deepslate variants, and nether quartz ores drop 1 unit of their corresponding material.
+Iron, gold, and their respective deepslate variants drop 1 unit of their raw form.
+Copper and deepslate copper ores drop 2-5 raw copper.
+Redstone and deepslate redstone ores drop 4–5 redstone dust.
+Lapis lazuli and deepslate lapis lazuli ores drop 4–9 lapis lazuli.
+Nether gold ore drops 2–6 gold nuggets.
+Ancient debris is the exception; it drops itself when mined and must be smelted to obtain netherite scrap.
+
+which means Fortune II gives 1.75x (13⁄4) drops on average, Fortune III gives 2.2x (21⁄5) drops on average, etc."""

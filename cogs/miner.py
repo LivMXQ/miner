@@ -88,14 +88,14 @@ class Miner(commands.Cog):
     async def distrubution(self, ctx):
         embed = discord.Embed(title="Miner Ore Distributing Chart")
         embed.set_image(url="https://i.ibb.co/Rg90Qnn/b3bak5eige381-png.png")
-        await ctx.reply(embed=embed, mention_author=False)
+        await ctx.send(embed=embed)
 
     @commands.command(name="mine", aliases=["dig"])
     @check_cooldown()
     @check_if_in_db()
     async def mine(self, ctx):
         embed = await resource.mine_loot(ctx.author)
-        await ctx.reply(embed=embed, mention_author=False)
+        await ctx.send(embed=embed)
 
     @commands.command(name="returntobase", aliases=["rtb"])
     async def returntobase(self, ctx):
@@ -108,28 +108,28 @@ class Miner(commands.Cog):
     @commands.command(name="inventory", aliases=["inv"])
     @check_if_in_db()
     async def inventory(self, ctx):
-        usr = user.User(ctx.author)
-        embed = discord.Embed(title=f"{ctx.author.name}'s inventory")
-        invdict = await usr.get_user_data("inventory")
-        for i in invdict:
-            if invdict[i] != 0:
-                name = self.allitems[i]["name"]
-                id = self.allitems[i]["id"]
-                catagory = self.allitems[i]["catagory"]
-                embed.add_field(name=f"{id} {name} ─ {invdict[i]}",
-                                value=f"*ID* `{i}` ─ {catagory}",
-                                inline=False)
-        embed.set_footer(text="yes")
-        await ctx.send(embed=embed)
+      usr = user.User(ctx.author)
+      avatar = ctx.author.avatar
+      invdict = await usr.get_user_data("inventory")
+      value = []
+      for i in invdict:
+        if invdict[i] != 0:
+          name = self.allitems[i]["name"]
+          id = self.allitems[i]["id"]
+          value.append(f"{id} **{name}** ─ {invdict[i]}")
+      embed = discord.Embed(description="\n".join(value))
+      embed.set_author(name=f"{ctx.author.name}'s inventory", icon_url=avatar)
+      embed.set_footer(text="yes")
+      await ctx.send(embed=embed)
 
     @commands.command(name="createaccount", aliases=["start", "create"])
     async def createaccount(self, ctx):
         usr = user.User(ctx.author)
         if await usr.check_if_in_db():
-            await ctx.reply("You already have an account bro.")
+            await ctx.send("You already have an account bro.")
         else:
             await usr.create_account()
-            await ctx.reply("Created a miner for you!", mention_author=False)
+            await ctx.send("Created a miner for you!", mention_author=False)
 
     @commands.command(name="deleteaccount")
     @check_if_in_db()
@@ -152,17 +152,29 @@ class Miner(commands.Cog):
 
         cfmbtn.callback = cfmcb
       
-    @commands.command(name="settings")
+    @commands.command(name="settings", aliases = ["config"])
     @check_if_in_db() 
     async def setting(self, ctx, *args):
-      usr = user.user(ctx.author.id)
-      if args[0] == "mining_direction":
-        if args[1] == "up":
-          usr.update_user_data("Mining Direction", "up") 
-        if args[1] == "down":
-          usr.update_user_data("Mining Direction", "down") 
-       
+      usr = user.User(ctx.author)
+      if not args:
+        config = await usr.get_user_data("config")
+        embed = discord.Embed(title=f"{ctx.author.name}'s configurations")
+        for i in config:
+          embed.add_field(name=i, value=config[i], inline=False)
+        await ctx.send(embed=embed)
         
-    
+      elif args[0] == "direction" or args[0] == "mining_direction":
+        if args[1] == "up":
+          await usr.update_user_data("config", "Mining Direction", "up")
+          await ctx.send("Congratulations! You are now mining upwards!") 
+        if args[1] == "down":
+          await usr.update_user_data("config", "Mining Direction", "down") 
+          await ctx.send("Congratulations! You are now mining downwards!")
+          
+    @commands.command(name="shop")
+    @check_if_in_db()
+    async def shop(self, ctx, *args):
+      pass
+      
 def setup(bot: commands.bot):
     bot.add_cog(Miner(bot))
