@@ -2,7 +2,7 @@ import random
 import user
 import discord
 
-def getraritycolor(rarity):
+def get_rarity_color(rarity):
   if rarity == "common":
     return 14671837
   elif rarity == "uncommon":
@@ -19,45 +19,73 @@ def getraritycolor(rarity):
     return None
 
 class Item():
-  def __init__(self):
-    self.allitems = allitems
-
-  def getallitems(self):
-    return self.allitems
+  pass
 
   
 
 class Ore(Item):
-  def __init__(self):
-    self.oredict = dict()
-    for i in allitems:
-      if allitems[i]["catagory"] == "ore":
-        self.oredict[i] = allitems[i]
-
-  def getores(self):
-      return self.oredict
+  pass
 
 class Pickaxe(Item):
+  pass
+  
+class Wooden_Pickaxe(Pickaxe):
+  emoji_id="<:Wooden_Pickaxe:954585728153698324>"
+  catagory="Pickaxe"
+  rarity="common"
+  display_name="Wooden Pickaxe"
   def __init__(self):
-    self.pickdict = {}
-    for i in allitems:
-      if allitems[i]["catagory"] == "pickaxe":
-        self.pickdict[i] = allitems[i]
+    self.enchantments = {}
+    self.durability = 59
 
-  def getpickaxes(self):
-      return self.pickdict
+class Stone_Pickaxe(Pickaxe):
+  emoji_id="<:Stone_Pickaxe:954585728107544656>"
+  catagory="Pickaxe"
+  rarity="uncommon"
+  display_name="Stone Pickaxe"
+  def __init__(self):
+    self.enchantments = {}
+    self.durability = 131
 
+class Iron_Pickaxe(Pickaxe):
+  emoji_id="<:Iron_Pickaxe:954585728141111326>"
+  catagory="Pickaxe"
+  rarity="rare"
+  display_name="Iron Pickaxe"
+  def __init__(self):
+    self.enchantments = {}
+    self.durability = 250
+
+class Golden_Pickaxe(Pickaxe):
+  emoji_id="<:Golden_Pickaxe:954585728082378814>"
+  catagory="Pickaxe"
+  rarity="rare"
+  display_name="Golden Pickaxe"
+  def __init__(self):
+    self.enchantments = {}
+    self.durability = 32
+
+class Diamond_Pickaxe(Pickaxe):
+  emoji_id="<:Diamond_Pickaxe:954585728103362600>"
+  catagory="Pickaxe"
+  rarity="epic"
+  display_name="Diamond Pickaxe"
+  def __init__(self):
+    self.enchantments = {}
+    self.durability = 1561
+
+class Netherite_Pickaxe(Pickaxe):
+  emoji_id="<:Netherite_Pickaxe:954585728136925204>"
+  catagory="Pickaxe"
+  rarity="legendary"
+  display_name="Netherite Pickaxe"
+  def __init__(self):
+    self.enchantments = {}
+    self.durability = 2031
 
 
 class Block(Item):
-  def __init__(self):
-    self.blockdict = {}
-    for i in allitems:
-      if allitems[i]["catagory"] == "block":
-        self.blockdict[i] = allitems[i]
-
-  def getblocks(self):
-      return self.blockdict
+  pass
     
         
 
@@ -93,10 +121,10 @@ async def mine_loot(member):
   else:
     multipler = await usr.get_multipler()
     await usr.change_y()
-    name = allitems[loot]["name"]
-    id = allitems[loot]["id"]
-    rarity = allitems[loot]["rarity"]
-    embed = discord.Embed(title=f"{member.name}'s booty", colour=getraritycolor(rarity))
+    name = items[loot]["name"]
+    id = items[loot]["id"]
+    rarity = items[loot]["rarity"]
+    embed = discord.Embed(title=f"{member.name}'s booty", colour=get_rarity_color(rarity))
     embed.set_thumbnail(url="https://i.ibb.co/f8Lsxkb/Small-Mining-Sack.jpg")
     embed.add_field(value=f"You swung your pickaxe and got {multipler} {name} {id}", name='\u200b')
     y = await usr.get_user_data("y")
@@ -193,7 +221,7 @@ oreloot_54 = {
 }
 
 
-allitems = {"Coal":{"id":"<:Coal:954584616734437486>", "catagory":"Ore", "rarity":"uncommon", "name":"Coal", "drop_multipler":1, "buy_price": 10, "sell_price": 7},
+items = {"Coal":{"id":"<:Coal:954584616734437486>", "catagory":"Ore", "rarity":"uncommon", "name":"Coal", "drop_multipler":1, "buy_price": 10, "sell_price": 7},
 "Copper_Ingot":{"id":"<:Copper_Ingot:954584616763789392>", "catagory":"Ore", "rarity":"uncommon","name":"Copper Ingot", "drop_multipler":random.randint(2,4), "buy_price": 20, "sell_price" : 10},
 "Iron_Ingot":{"id":"<:Iron_Ingot:954584616742846554>", "catagory":"Ore", "rarity":"uncommon", "name":"Iron Ingot"},  
 "Gold_Ingot":{"id":"<:Gold_Ingot:954584616738619462>", "catagory":"Ore", "rarity":"rare","name":"Gold Ingot"}, 
@@ -207,13 +235,7 @@ allitems = {"Coal":{"id":"<:Coal:954584616734437486>", "catagory":"Ore", "rarity
 "Gold_Nugget":{"id":"<:Gold_Nugget:954584616818335784>", "catagory":"Ore", "rarity":"uncommon","name":"Gold Nugget"},
 "Nether_Quartz":{"id":"<:Nether_Quartz:954584616730238986>", "catagory":"Ore", "rarity":"uncommon","name":"Quartz"},
 "Netherite_Ingot":{"id":"<:Netherite_Ingot:954584616835100762>", "catagory":"Ore", "rarity":"legendary","name":"Netherite Ingot"},
-"Wooden_Pickaxe":{"id":"<:Wooden_Pickaxe:954585728153698324>", "catagory":"Pickaxe", "rarity":"common","name":"Wooden Pickaxe"}, 
-"Stone_Pickaxe":{"id":"<:Stone_Pickaxe:954585728107544656>", "catagory":"pickaxe", "rarity":"uncommon","name":"Stone Pickaxe"},
-"Iron_Pickaxe":{"id":"<:Iron_Pickaxe:954585728141111326>", "catagory":"Pickaxe", "rarity":"rare","name":"Iron Pickaxe"},
-"Golden_Pickaxe":{"id":"<:Golden_Pickaxe:954585728082378814>", 
-"catagory":"Pickaxe", "rarity":"rare","name":"Golden Pickaxe"},
-"Diamond_Pickaxe":{"id":"<:Diamond_Pickaxe:954585728103362600>", "catagory":"Pickaxe", "rarity":"epic","name":"Diamond Pickaxe"},
-"Netherite_Pickaxe":{"id":"<:Netherite_Pickaxe:954585728136925204>", "catagory":"Pickaxe", "rarity":"legendary","name":"Netherite Pickaxe"},
+
 "Cobblestone":{"id":"<:Cobblestone:955375789422047252>", "catagory":"Block", "rarity":"common","name":"Cobblestone"},
 "Cobbled_Deepslate":{"id":"<:Cobbled_Deepslate:955375789484945408>", "catagory":"Block", "rarity":"common","name":"Cobbled Deepslate"},
 "Netherrack":{"id":"<:Netherrack:954585851319431169>", "catagory":"Block", "rarity":"common","name":"Netherrack"},
