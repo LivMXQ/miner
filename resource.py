@@ -1,3 +1,5 @@
+from asyncio.windows_events import NULL
+from math import nan
 import random
 import user
 import discord
@@ -136,34 +138,58 @@ async def mine_loot(member):
   return embed
     
 
-oreloot64 = {
+items = {
+  "Ore" : 
+  {"Coal":{"emoji_id":"<:Coal:954584616734437486>", "rarity":"uncommon", "display_name":"Coal", "drop_multipler":1, "buy_price": int, "sell_price": int}, 
+  "Copper_Ingot":{"emoji_id":"<:Copper_Ingot:954584616763789392>", "rarity":"uncommon","display_name":"Copper Ingot", "drop_multipler":random.randint(2,4), "buy_price": int, "sell_price" : int},
+  "Iron_Ingot":{"emoji_id":"<:Iron_Ingot:954584616742846554>", "rarity":"uncommon", "display_name":"Iron Ingot"},  
+  "Gold_Ingot":{"emoji_id":"<:Gold_Ingot:954584616738619462>", "rarity":"rare","display_name":"Gold Ingot"}, 
+  "Lapis_Lazuli":{"emoji_id":"<:Lapis_Lazuli:954584616780570684>", "rarity":"epic","display_name":"Lapis"},
+  "Redstone_Dust":{"emoji_id":"<:Redstone_Dust:954584616768004176>", "rarity":"rare","display_name":"Redstone"},
+  "Diamond":{"emoji_id":"<:Diamond:954584616738635786>", "rarity":"legendary","display_name":"Diamond"}, 
+  "Ruby":{"emoji_id":"<:Ruby:954584832866922526>", "rarity":"special","display_name":"Ruby"},
+  "Emerald":{"emoji_id":"<:Emerald:954584616717660230>", "rarity":"epic","display_name":"Emerald"},
+  "Gold_Nugget":{"emoji_id":"<:Gold_Nugget:954584616818335784>", "rarity":"uncommon","display_name":"Gold Nugget"},
+  "Nether_Quartz":{"emoji_id":"<:Nether_Quartz:954584616730238986>", "rarity":"uncommon","display_name":"Quartz"},
+  "Netherite_Ingot":{"emoji_id":"<:Netherite_Ingot:954584616835100762>", "rarity":"legendary","display_name":"Netherite Ingot"},
+  },
+  "Block":
+  {
+  "Cobblestone":{"emoji_id":"<:Cobblestone:955375789422047252>", "rarity":"common","display_name":"Cobblestone"},
+  "Cobbled_Deepslate":{"emoji_id":"<:Cobbled_Deepslate:955375789484945408>", "rarity":"common","display_name":"Cobbled Deepslate"},
+  "Netherrack":{"emoji_id":"<:Netherrack:954585851319431169>", "rarity":"common","display_name":"Netherrack"},
+  "Blackstone":{"emoji_id":"<:Blackstone:954585850774163466>}", "rarity":"common","display_name":"Blackstone"},
+  "Basalt":{"emoji_id":"<:Basalt:954585850782547979>", "rarity":"common","display_name":"Basalt"}
+  }
+}
+
+
+loot_table = { 
+"64_48" : {
 "Cobblestone": 2014,
 "Coal": 276, 
 "Copper_Ingot": 216,
 "Iron_Ingot": 30,  
 "Lapis_Lazuli": 24,
 "Emerald": 48
-}
-
-oreloot48 = {
+  }, 
+"48_32" : {
 "Cobblestone": 1936,
 "Coal": 234, 
 "Copper_Ingot": 294,
 "Iron_Ingot": 84,  
 "Lapis_Lazuli": 24,
 "Emerald": 36
-}
-
-oreloot32 = {
+  }, 
+"32_16" : {
 "Cobblestone": 2092,
 "Coal": 132, 
 "Copper_Ingot": 216,
 "Iron_Ingot": 114,  
 "Lapis_Lazuli": 24,
 "Emerald": 30
-}
-
-oreloot16 = {
+  }, 
+"16_0" : {
 "Cobblestone": 2014,
 "Coal": 66, 
 "Copper_Ingot": 174,
@@ -171,9 +197,8 @@ oreloot16 = {
 "Gold_Ingot": 24,
 "Lapis_Lazuli": 48,
 "Emerald": 18
-}
-
-oreloot0 = {
+  }, 
+"0_-16" : {
 "Cobbled_Deepslate": 2170,
 "Copper_Ingot": 72,
 "Iron_Ingot": 162,  
@@ -182,79 +207,50 @@ oreloot0 = {
 "Redstone_Dust": 48,
 "Diamond": 18, 
 "Emerald": 12
-}
-
-oreloot_16 = {
+  }, 
+"-16_-32" : {
 "Cobbled_Deepslate": 2304,
 "Iron_Ingot": 84,  
 "Gold_Ingot": 84,
 "Lapis_Lazuli": 48,
 "Redstone_Dust": 48,
 "Diamond": 40
-}
+  },
 
-oreloot_32 = {
+"-32_-48" : {
 "Cobbled_Deepslate": 2398,
 "Iron_Ingot": 36,  
 "Gold_Ingot": 54,
 "Lapis_Lazuli": 24,
 "Redstone_Dust": 48,
 "Diamond": 48
-}
+  },
 
-oreloot_48 = {
+"-48_-54" : {
 "Cobbled_Deepslate": 2316,
 "Iron_Ingot": 30,  
 "Gold_Ingot": 24,
 "Lapis_Lazuli": 24,
 "Redstone_Dust": 168,
 "Diamond": 66, 
-}
+  },
 
-oreloot_54 = {
+"-54_-64" : {
 "Cobbled_Deepslate": 2212,
 "Iron_Ingot": 30,  
 "Gold_Ingot": 48,
 "Lapis_Lazuli": 24,
 "Redstone_Dust": 216,
 "Diamond": 78
+  }
 }
-
-
-items = {"Coal":{"id":"<:Coal:954584616734437486>", "catagory":"Ore", "rarity":"uncommon", "name":"Coal", "drop_multipler":1, "buy_price": 10, "sell_price": 7},
-"Copper_Ingot":{"id":"<:Copper_Ingot:954584616763789392>", "catagory":"Ore", "rarity":"uncommon","name":"Copper Ingot", "drop_multipler":random.randint(2,4), "buy_price": 20, "sell_price" : 10},
-"Iron_Ingot":{"id":"<:Iron_Ingot:954584616742846554>", "catagory":"Ore", "rarity":"uncommon", "name":"Iron Ingot"},  
-"Gold_Ingot":{"id":"<:Gold_Ingot:954584616738619462>", "catagory":"Ore", "rarity":"rare","name":"Gold Ingot"}, 
-"Lapis_Lazuli":{"id":"<:Lapis_Lazuli:954584616780570684>", "catagory":"Ore", "rarity":"epic","name":"Lapis"},
-"Redstone_Dust":{"id":"<:Redstone_Dust:954584616768004176>", "catagory":"Ore", "rarity":"rare","name":"Redstone"},
-"Diamond":{"id":"<:Diamond:954584616738635786>",
-"catagory":"Ore", "rarity":"legendary","name":"Diamond"}, 
-"Ruby":{"id":"<:Ruby:954584832866922526>", 
-"catagory":"Ore", "rarity":"special","name":"Ruby"},
-"Emerald":{"id":"<:Emerald:954584616717660230>", "catagory":"Ore", "rarity":"epic","name":"Emerald"},
-"Gold_Nugget":{"id":"<:Gold_Nugget:954584616818335784>", "catagory":"Ore", "rarity":"uncommon","name":"Gold Nugget"},
-"Nether_Quartz":{"id":"<:Nether_Quartz:954584616730238986>", "catagory":"Ore", "rarity":"uncommon","name":"Quartz"},
-"Netherite_Ingot":{"id":"<:Netherite_Ingot:954584616835100762>", "catagory":"Ore", "rarity":"legendary","name":"Netherite Ingot"},
-
-"Cobblestone":{"id":"<:Cobblestone:955375789422047252>", "catagory":"Block", "rarity":"common","name":"Cobblestone"},
-"Cobbled_Deepslate":{"id":"<:Cobbled_Deepslate:955375789484945408>", "catagory":"Block", "rarity":"common","name":"Cobbled Deepslate"},
-"Netherrack":{"id":"<:Netherrack:954585851319431169>", "catagory":"Block", "rarity":"common","name":"Netherrack"},
-"Blackstone":{"id":"<:Blackstone:954585850774163466>}", "catagory":"Block", "rarity":"common","name":"Blackstone"},
-"Basalt":{"id":"<:Basalt:954585850782547979>", "catagory":"Block", "rarity":"common","name":"Basalt"}
-}
-
 
 event = {"event": 6.284, "ore": 93.716}
 
 def ore_drop_multipler(ore):
   pass
 
-def get_dict_value(dict):
-    list = []
-    for key in dict:
-        list.append(dict[key])
-          
-    return list
+
 
 
 ### NOT FINAL ONLY REFERENCE ###
