@@ -12,8 +12,8 @@ class Error(commands.Cog):
     if isinstance(error, commands.CommandNotFound):
       pass
       
-    elif isinstance(error, commands.CommandOnCooldown):
-      message = f"This command is on cooldown. Try again after {round(error.retry_after, 1)} seconds."
+    elif isinstance(error, commands.CommandOnCooldown): 
+      message = f"This command is on cooldown. Try again after {int(error.retry_after)} seconds."
       await ctx.reply(content=message)
       
     elif isinstance(error, commands.MissingPermissions):
