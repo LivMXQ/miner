@@ -34,7 +34,6 @@ class Error(commands.Cog):
 
     elif isinstance(error, UserNotInDb):
       message = "You do not have a Miner yet! Create a Miner using ;createaccount"
-      print("yes")
       await ctx.reply(content=message)
       
     else:

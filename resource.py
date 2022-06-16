@@ -11,8 +11,9 @@ class OtherEventLol(Event):
   pass
   
 class Rarity:
-  pass
-
+  def get_color(self):
+    return self.id
+    
 class Common(Rarity):
   id = 16777215
 

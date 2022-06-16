@@ -1,6 +1,6 @@
 import discord
-import resource
 import user
+import pickle
 from replit import db
 from cogs.error import UserNotInDb
 from discord.ext import commands
@@ -10,7 +10,7 @@ cooldowns = dict()
 registeredviews = list()
 currentview = None
 
-admin_users = ["714826336102907976","895289342497538059"]
+admin_users = ["714826336102907976","895289342497538059", "808223912688746496"]#hegen, liv, dwizard 
 
 class endinteractionbtn(Button):
     def __init__(self, row=1):
@@ -83,6 +83,7 @@ class Miner(commands.Cog):
         return commands.check(predicate)
 
     @commands.command(name="distribution", aliases=["dist"])
+  
     async def distrubution(self, ctx):
         embed = discord.Embed(title="Miner Ore Distributing Chart")
         embed.set_image(url="https://i.ibb.co/Rg90Qnn/b3bak5eige381-png.png")
@@ -95,7 +96,8 @@ class Miner(commands.Cog):
       user_ = user.User(ctx.author)
       embed = user_.mine_()
       await ctx.send(embed=embed)
-
+      
+    
     @commands.command(name="returntobase", aliases=["rtb"])
     async def returntobase(self, ctx):
         user_ = user.User(ctx.author)
@@ -105,21 +107,20 @@ class Miner(commands.Cog):
             await ctx.send("You are already in your base lol")
 
     @commands.command(name="inventory", aliases=["inv"])
-    @check_if_in_db()
+    @check_if_in_db()#i will fix this dont worry
     async def inventory(self, ctx):
-      user_ = user.User(ctx.author)
       avatar = ctx.author.avatar
-      invdict = user_.get_user_data("inventory")
+      user_ = user.User(ctx.author)
+      user_.sort_inventory(user_.get_user_data("configurations")["inventory_key"])
       value = []
-      #for i in invdict:
-        #if invdict[i] != 0:
-          #name = self.allitems[i]["name"]
-          #id = self.allitems[i]["id"]
-          #value.append(f"{id} **{name}** ─ {invdict[i]}")
-      #embed = discord.Embed(description="\n".join(value))
-      #embed.set_author(name=f"{ctx.author.name}'s inventory", icon_url=avatar)
-      #embed.set_footer(text="yes")
-      #await ctx.send(embed=embed)
+      for i in user_.inv:
+        if user_.inv[i] != 0:
+          item = pickle.loads(i.encode())
+          value.append(f"{item.emoji_id} **{item.display_name}** ─ {user_.inv[i]}")
+      embed = discord.Embed(description="\n".join(value))
+      embed.set_author(name=f"{ctx.author.name}'s inventory", icon_url=avatar)
+      embed.set_footer(text="You can't use 'pls use [item]' to use an item lol")
+      await ctx.send(embed=embed)
 
     @commands.command(name="createaccount", aliases=["start", "create"])
     async def createaccount(self, ctx):
