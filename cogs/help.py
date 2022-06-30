@@ -24,7 +24,7 @@ class MyHelp(commands.HelpCommand):
       
     
   async def send_command_help(self, command):
-    embed = discord.Embed(title=f"-{command} info", color=discord.Colour.random())
+    embed = discord.Embed(title=f";{command} info", color=6671615)
     embed.add_field(name="Description", value=command.help)
     embed.add_field(name='Usage', value=self.get_command_signature(command), inline=False)
     try:
@@ -43,15 +43,14 @@ class MyHelp(commands.HelpCommand):
     
   async def send_bot_help(self, mapping):
     ctx = self.get_destination()
-    embed = discord.Embed(title=f"{ctx.guild} Help", color=discord.Colour.random())
+    embed = discord.Embed(title="Miner 2.0 List of Commands", color=6671615)
     for cog, command in mapping.items():
       filtered = await self.filter_commands(command, sort=True)
       command_signatures = [self.get_command_signature(c) for c in filtered]
       if command_signatures:
         cog_name = getattr(cog, "qualified_name", "No Category")
         embed.add_field(name=cog_name, value="\n".join(command_signatures), inline=False)
-    await ctx.send("Check your dms")
-    await ctx.author.send(embed=embed)
+    await ctx.send(embed=embed)
 
 
   async def send_error_message(self, error):

@@ -1,6 +1,5 @@
 import discord
 import user
-import pickle
 from replit import db
 from cogs.error import UserNotInDb
 from discord.ext import commands
@@ -75,8 +74,8 @@ class Miner(commands.Cog):
 
     def check_if_in_db():
         async def predicate(ctx):
-            user_ = user.User(ctx.author)
-            if not user_.check_if_in_db():
+            _user = user.User(ctx.author)
+            if not _user.check_if_in_db():
                 raise UserNotInDb(ctx.author)
             return True
 
@@ -93,49 +92,44 @@ class Miner(commands.Cog):
     @check_cooldown()
     @check_if_in_db()
     async def mine(self, ctx):
-      user_ = user.User(ctx.author)
-      embed = user_.mine_()
+      _user = user.User(ctx.author)
+      embed = _user.mine_()
       await ctx.send(embed=embed)
       
     
     @commands.command(name="returntobase", aliases=["rtb"])
     async def returntobase(self, ctx):
-        user_ = user.User(ctx.author)
-        if user_.return_to_basetobase():
+        _user = user.User(ctx.author)
+        if _user.return_to_basetobase():
             await ctx.send("You Successfully returned to base!")
         else:
             await ctx.send("You are already in your base lol")
 
+  
     @commands.command(name="inventory", aliases=["inv"])
     @check_if_in_db()#i will fix this dont worry
     async def inventory(self, ctx):
-      avatar = ctx.author.avatar
-      user_ = user.User(ctx.author)
-      user_.sort_inventory(user_.get_user_data("configurations")["inventory_key"])
-      value = []
-      for i in user_.inv:
-        if user_.inv[i] != 0:
-          item = pickle.loads(i.encode())
-          value.append(f"{item.emoji_id} **{item.display_name}** ─ {user_.inv[i]}")
-      embed = discord.Embed(description="\n".join(value))
-      embed.set_author(name=f"{ctx.author.name}'s inventory", icon_url=avatar)
-      embed.set_footer(text="You can't use 'pls use [item]' to use an item lol")
+      
+      _user = user.User(ctx.author)
+      embed = _user.get_inventory_embed()
       await ctx.send(embed=embed)
+      
 
     @commands.command(name="createaccount", aliases=["start", "create"])
     async def createaccount(self, ctx):
-        user_ = user.User(ctx.author)
-        if user_.check_if_in_db():
+        _user = user.User(ctx.author)
+        if _user.check_if_in_db():
             await ctx.send("You already have an account bro.")
         else:
-            await user_.create_account()
+            await _user.create_account()
             initialize_cooldowns(cooldowns)
             await ctx.send("Created a miner for you!", mention_author=False)
 
+  
     @commands.command(name="deleteaccount")
     @check_if_in_db()
     async def deleteaccount(self, ctx):
-        user_ = user.User(ctx.author)
+        _user = user.User(ctx.author)
         cfmbtn = Button(label="CONFIRM", style=discord.ButtonStyle.danger)
         cfmview = view_timeout(timeout=10, ctx=ctx)
         cfmview.add_item(cfmbtn)
@@ -144,21 +138,21 @@ class Miner(commands.Cog):
         )
         msg = await ctx.send("This action CANNOT be undone", view=cfmview)
         cfmview.message = msg
-
+      
         async def cfmcb(interaction):
-            user_.delete_user()
+            _user.delete_user()
             cfmbtn.disabled = True
             await ctx.send("You deleted your account );")
             await interaction.response.edit_message(view=cfmview)
-
         cfmbtn.callback = cfmcb
+
       
-    @commands.command(name="settings", aliases = ["config"])
+    @commands.command(name="settings", aliases = ["config","setting"])
     @check_if_in_db() 
     async def setting(self, ctx, *args):
-      user_ = user.User(ctx.author)
+      _user = user.User(ctx.author)
       if not args:
-        config = user_.get_user_data("config")
+        config = _user.get_user_data("configurations")
         embed = discord.Embed(title=f"{ctx.author.name}'s configurations")
         for i in config:
           embed.add_field(name=i, value=config[i], inline=False)
@@ -166,11 +160,12 @@ class Miner(commands.Cog):
         
       elif args[0] == "direction" or args[0] == "mining_direction":
         if args[1] == "up":
-          user_.update_user_data("config", "Mining Direction", "up")
+          _user.update_user_data("up", "config", "mining_direction")
           ctx.send("Congratulations! You are now mining upwards!") 
         if args[1] == "down":
-          user_.update_user_data("config", "Mining Direction", "down") 
+          _user.update_user_data("down", "config", "mining_direction") 
           await ctx.send("Congratulations! You are now mining downwards!")
+
           
     @commands.command(name="shop")
     @check_if_in_db()

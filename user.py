@@ -14,10 +14,8 @@ def get_all_users():
 class User: #all here
   def __init__(self, user):
     self.user = user
-    self.data = db["users"][str(user.id)]
-    self.inv = db["users"][str(user.id)]["inventory"]
+    self.data = self.get_user_data() #ONYL USE THIS TO READ DATA
 
-  
   def get_cooldown(self): #still working on this 
     return 17
 
@@ -31,7 +29,7 @@ class User: #all here
     if choice == src.MineOreEvent:
       ores, chances = src.get_dict_vlaues(src.loot_table[src.get_y_section(y)])
       loot = random.choices(ores, weights=chances)[0]
-      multipler = self.get_multipler()
+      multipler = self.get_multipler() * loot().drop_multipler()
       change = self.change_y()
       embed = discord.Embed(title=f"{self.user.name}'s booty",description=f"You swung your pickaxe and got {multipler} {loot.display_name} {loot.emoji_id}", color=loot.rarity.id)
       new_y = y + change
@@ -43,14 +41,14 @@ class User: #all here
 
   
   def return_to_base(self):
-    if self.data["y"] < 64:
-      self.data["y"] = 64
+    if db["users"][str(self.user.id)]["y"] < 64:
+      db["users"][str(self.user.id)]["y"] = 64
       return True
     else:
       return False
       
   async def create_account(self):
-    self.data = default_dictionary
+    db["users"][str(self.user.id)] = default_dictionary
     if isinstance(self.user, discord.Member):
       try:
         role = discord.utils.get(self.user.guild.roles, name="Minor ⛏️")
@@ -59,22 +57,31 @@ class User: #all here
         print(f"WARN: Minor role not granted on account create")
     return True
     
-  def update_user_data(self, type, *value):
+  def update_user_data(self, value, *type):
     if self.check_if_in_db():
-      if len(value) == 1:
-        self.data[type] = value[0]
+      if len(type) == 0:
+        db["users"][str(self.user.id)] = value
         return True
-               
-      elif len(value) == 2:
-        self.data[type][value[0]] = value[1]
+      elif len(type) == 1:
+        db["users"][str(self.user.id)][type[0]] = value
+        return True        
+      elif len(type) == 2:
+        db["users"][str(self.user.id)][type[0]][type[1]] = value
         return True
     else:
       return False
     
-  def get_user_data(self, type):
+  def get_user_data(self, *type):
     if self.check_if_in_db():
-      value = self.data[type]
-      return value
+      if len(type) == 0:
+        value = db["users"][str(self.user.id)] 
+        return value
+      elif len(type) == 1:
+        value = db["users"][str(self.user.id)][type[0]] 
+        return value        
+      elif len(type) == 2:
+        value = db["users"][str(self.user.id)][type[0]][type[1]] 
+        return value
     else:
       return False
 
@@ -89,56 +96,59 @@ class User: #all here
     return True
 
   def change_y(self):
-    config = self.get_user_data("configurations")
-    y = self.get_user_data("y")
-    if config["mining_direction"] == "Down" and y >=-60:
-      self.update_user_data("y", y - random.randrange(0,5))
-    elif config["mining_direction"] == "Down" and y==-61:
-      self.update_user_data("y", y - random.randrange(0,4))
-    elif config["mining_direction"] == "Down" and y==-62:
-      self.update_user_data("y", y - random.randrange(0,3))
-    elif config["mining_direction"] == "Down" and y==-63:
-      self.update_user_data("y", y - random.randrange(0,2))
-    elif config["mining_direction"] == "Up" and y<=60:
-      self.update_user_data("y", y + random.randrange(0,5))
-    elif config["mining_direction"] == "Up" and y==61:
-      self.update_user_data("y", y + random.randrange(0,4))
-    elif config["mining_direction"] == "Up" and y==62:
-      self.update_user_data("y", y + random.randrange(0,3))
-    elif config["mining_direction"] == "Up" and y==63:
-      self.update_user_data("y", y + random.randrange(0,2))
-    new_y = self.get_user_data("y")
+    config = db["users"][str(self.user.id)]["configurations"]
+    y = db["users"][str(self.user.id)]["y"]
+    if config["mining_direction"] == "down":
+      db["users"][str(self.user.id)]["y"] = y - random.randint(0,4)
+    elif config["mining_direction"] == "up":
+      db["users"][str(self.user.id)]["y"] = y + random.randint(0,4)
+    new_y = db["users"][str(self.user.id)]["y"]
+    if new_y > 64:
+      db["users"][str(self.user.id)]["y"] = 64
+    if new_y < -64:
+      db["users"][str(self.user.id)]["y"] = -64
     return new_y - y
   
   def sort_inventory(self, key="by_name"):
     if key=="by_name":
-      keys = [i for i in self.inv.keys()]
+      keys = [i for i in db["users"][str(self.user.id)]["inventory"].keys()]
       keys.sort(key=lambda x: pickle.loads(x.encode()).__name__)    
-      self.inv = dict(zip(keys,[self.inv[i] for i in keys]))
+      db["users"][str(self.user.id)]["inventory"] = dict(zip(keys,[db["users"][str(self.user.id)]["inventory"][i] for i in keys]))
 
     
   def add_item_to_inventory(self, item, amount):
     pickled = pickle.dumps(item, 0).decode()
-    if pickled not in self.inv:
-      self.inv[pickled] = amount
+    if pickled not in db["users"][str(self.user.id)]["inventory"]:
+      db["users"][str(self.user.id)]["inventory"][pickled] = amount
     else:     
-      self.inv[pickled] += amount
+      db["users"][str(self.user.id)]["inventory"][pickled] += amount
   
   def remove_item_from_inventory(self, item, amount):
-    if item not in self.inv:
+    if item not in db["users"][str(self.user.id)]["inventory"]:
       return False
     else:     
-      self.inv[item] -= amount
+      db["users"][str(self.user.id)]["inventory"][item] -= amount
+
+  def get_inventory_embed(self):
+    self.sort_inventory(self.get_user_data("configurations", "inventory_key"))
+    value = []
+    for i in db["users"][str(self.user.id)]["inventory"]:
+      if db["users"][str(self.user.id)]["inventory"] != 0:
+        item = pickle.loads(i.encode())
+        value.append(f"""{item.emoji_id} **{item.display_name}** × {self.data["inventory"][i]}""")
+    embed = discord.Embed(title=f"{self.user.name}'s Inventory", description="\n".join(value), colour=6671615)
+    embed.set_footer(text="You can't use 'pls use [item]' to use an item lol")
+    return embed
 
   def update_default_dict(self):
     counter = 0
     for a in default_dictionary:
-      if a not in self.data.keys():
-        self.data[a] = default_dictionary[a]
+      if a not in db["users"][str(self.user.id)].keys():
+        db["users"][str(self.user.id)][a] = default_dictionary[a]
         counter +=1
     for b in default_dictionary["configurations"]:
-      if b not in self.data["configurations"]:
-        self.data["configurations"][b] = default_dictionary["configurations"][b]
+      if b not in db["users"][str(self.user.id)]["configurations"]:
+        db["users"][str(self.user.id)]["configurations"][b] = default_dictionary["configurations"][b]
         counter +=1
     return counter
     

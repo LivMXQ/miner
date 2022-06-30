@@ -39,75 +39,119 @@ class Item():
   pass
 
 class Ore(Item):
-  pass
+  sellable = True
+
+  def drop_multipler(self):
+    return 1
 
 class Coal(Ore):
-  emoji_id="<:Coal:954584616734437486>"
-  rarity=Uncommon
-  display_name="Coal"
-  drop_multipler=1 
-  buy_price=int
-  sell_price=int 
+  emoji_id = "<:Coal:954584616734437486>"
+  rarity = Uncommon
+  display_name = "Coal"
+  buy_price = 120
+  sell_price = 100
+  description = None 
 
 class Copper_Ingot(Ore):
-    emoji_id="<:Copper_Ingot:954584616763789392>"
-    rarity=Uncommon
-    display_name="Copper Ingot"
-    drop_multipler=random.randint(2, 4) 
-    buy_price=int 
-    sell_price=int
+  emoji_id = "<:Copper_Ingot:954584616763789392>"
+  rarity = Uncommon
+  display_name = "Copper Ingot"
+  buy_price = 36
+  sell_price = 30
+  description = None
+  
+  def drop_multipler(self) -> int:
+    return random.randint(2, 4) 
   
 class Iron_Ingot(Ore):
-    emoji_id="<:Iron_Ingot:954584616742846554>"
-    rarity=Uncommon
-    display_name="Iron Ingot"
+  emoji_id = "<:Iron_Ingot:954584616742846554>"
+  rarity = Uncommon
+  display_name = "Iron Ingot"
+  buy_price = 144 
+  sell_price = 120
+  description = None
   
 class Gold_Ingot(Ore):
-    emoji_id="<:Gold_Ingot:954584616738619462>"
-    rarity=Rare
-    display_name="Gold Ingot"
+  emoji_id = "<:Gold_Ingot:954584616738619462>"
+  rarity = Rare
+  display_name = "Gold Ingot"
+  buy_price = 318 
+  sell_price = 289
+  description = None
   
 class Lapis_Lazuli(Ore):
-    emoji_id="<:Lapis_Lazuli:954584616780570684>"
-    rarity=Rare
-    display_name="Lapis"
+  emoji_id = "<:Lapis_Lazuli:954584616780570684>"
+  rarity = Rare
+  display_name = "Lapis"
+  buy_price = 53 
+  sell_price = 44
+  description = None
+  
+  def drop_multipler(self) -> int:
+    return random.randint(4, 9) 
   
 class Redstone_Dust(Ore):
-    emoji_id="<:Redstone_Dust:954584616768004176>"
-    rarity=Rare
-    display_name="Redstone"
+  emoji_id = "<:Redstone_Dust:954584616768004176>"
+  rarity = Rare
+  display_name = "Redstone"
+  buy_price = 46 
+  sell_price = 38
+  description = None
+  
+  def drop_multipler(self) -> int:
+    return random.randint(4, 5) 
   
 class Diamond(Ore):
-    emoji_id="<:Diamond:954584616738635786>"
-    rarity=Epic
-    display_name="Diamond" 
+  emoji_id = "<:Diamond:954584616738635786>"
+  rarity = Epic
+  display_name = "Diamond" 
+  buy_price = 470 
+  sell_price = 427
+  description = None
   
 class Ruby(Ore):
-    emoji_id="<:Ruby:954584832866922526>"
-    rarity=Special
-    display_name="Ruby"
+  sellable = False
+  emoji_id = "<:Ruby:954584832866922526>"
+  rarity = Special
+  display_name = "Ruby"
+  description = None
   
 class Emerald(Ore):
-    emoji_id="<:Emerald:954584616717660230>"
-    rarity=Rare
-    display_name="Emerald"
+  emoji_id = "<:Emerald:954584616717660230>"
+  rarity = Rare
+  display_name = "Emerald"
+  buy_price = 530
+  sell_price = 482
+  description = None
   
 class Gold_Nugget(Ore):
-    emoji_id="<:Gold_Nugget:954584616818335784>"
-    rarity=Uncommon
-    display_name="Gold Nugget"
+  sellable = False
+  emoji_id = "<:Gold_Nugget:954584616818335784>"
+  rarity = Uncommon
+  display_name = "Gold Nugget"
+  description = None
+  
+  def drop_multipler(self) -> int:
+    return random.randint(2, 6) 
   
 class Nether_Quartz(Ore):
-    emoji_id="<:Nether_Quartz:954584616730238986>"
-    rarity=Uncommon
-    display_name="Quartz"
+  emoji_id = "<:Nether_Quartz:954584616730238986>"
+  rarity = Uncommon
+  display_name = "Quartz"
+  buy_price = int 
+  sell_price = int
+  description = None
   
 class Netherite_Ingot(Ore):
-    emoji_id="<:Netherite_Ingot:954584616835100762>"
-    rarity=Legendary
-    display_name="Netherite Ingot"
+  emoji_id = "<:Netherite_Ingot:954584616835100762>"
+  rarity = Legendary
+  display_name = "Netherite Ingot"
+  buy_price = int 
+  sell_price = int
+  description = None
 
 class Pickaxe(Item):
+  sellable = False
   def reduce_durability(self, number=1):
     self.durability -= number
   
@@ -117,83 +161,119 @@ class Wooden_Pickaxe(Pickaxe):
   catagory="Pickaxe"
   rarity=Common
   display_name="Wooden Pickaxe"
+  description = None
+  mining_speed = 2
+  
   def __init__(self):
     self.enchantments = {}
     self.durability = 59
 
 class Stone_Pickaxe(Pickaxe):
-  emoji_id="<:Stone_Pickaxe:954585728107544656>"
-  catagory="Pickaxe"
-  rarity=Uncommon
-  display_name="Stone Pickaxe"
+  emoji_id = "<:Stone_Pickaxe:954585728107544656>"
+  catagory = "Pickaxe"
+  rarity = Uncommon
+  display_name  ="Stone Pickaxe"
+  description = None
+  mining_speed = 4
+  
   def __init__(self):
     self.enchantments = {}
     self.durability = 131
 
 class Iron_Pickaxe(Pickaxe):
-  emoji_id="<:Iron_Pickaxe:954585728141111326>"
-  catagory="Pickaxe"
-  rarity=Rare
-  display_name="Iron Pickaxe"
+  emoji_id = "<:Iron_Pickaxe:954585728141111326>"
+  catagory = "Pickaxe"
+  rarity = Rare
+  display_name = "Iron Pickaxe"
+  description = None
+  mining_speed = 6
+  
   def __init__(self):
     self.enchantments = {}
     self.durability = 250
 
 class Golden_Pickaxe(Pickaxe):
-  emoji_id="<:Golden_Pickaxe:954585728082378814>"
-  catagory="Pickaxe"
-  rarity=Rare
-  display_name="Golden Pickaxe"
+  emoji_id = "<:Golden_Pickaxe:954585728082378814>"
+  catagory = "Pickaxe"
+  rarity = Rare
+  display_name = "Golden Pickaxe"
+  description = None
+  mining_speed = 12
+  
   def __init__(self):
     self.enchantments = {}
     self.durability = 32
 
 class Diamond_Pickaxe(Pickaxe):
-  emoji_id="<:Diamond_Pickaxe:954585728103362600>"
-  catagory="Pickaxe"
-  rarity=Epic
-  display_name="Diamond Pickaxe"
+  emoji_id = "<:Diamond_Pickaxe:954585728103362600>"
+  catagory = "Pickaxe"
+  rarity = Epic
+  display_name = "Diamond Pickaxe"
+  description = None
+  mining_speed = 8
+  
   def __init__(self):
     self.enchantments = {}
     self.durability = 1561
 
 class Netherite_Pickaxe(Pickaxe):
-  emoji_id="<:Netherite_Pickaxe:954585728136925204>"
-  catagory="Pickaxe"
-  rarity=Legendary
-  display_name="Netherite Pickaxe"
+  emoji_id = "<:Netherite_Pickaxe:954585728136925204>"
+  catagory = "Pickaxe"
+  rarity = Legendary
+  display_name = "Netherite Pickaxe"
+  description = None
+  mining_speed = 9
+  
   def __init__(self):
     self.enchantments = {}
     self.durability = 2031
 
 
 class Block(Item):
-  pass
+  sellable = True
+
+  def drop_multipler(self) -> int:
+    return 1
 
 class Cobblestone(Block):
-  emoji_id="<:Cobblestone:955375789422047252>"
-  rarity=Common
-  display_name="Cobblestone"
+  emoji_id = "<:Cobblestone:955375789422047252>"
+  rarity = Common
+  display_name = "Cobblestone"
+  buy_price = 12
+  sell_price = 10
+  description = None
 
 class Cobbled_Deepslate(Block):
-  emoji_id="<:Cobbled_Deepslate:955375789484945408>"
-  rarity=Common
-  display_name="Cobbled Deepslate"
+  emoji_id = "<:Cobbled_Deepslate:955375789484945408>"
+  rarity = Common
+  display_name = "Cobbled Deepslate"
+  buy_price = 10
+  sell_price = 8
+  description = None
 
 class Netherrack(Block):
-  emoji_id="<:Netherrack:954585851319431169>"
-  rarity=Common
-  display_name="Netherrack"
+  emoji_id = "<:Netherrack:954585851319431169>"
+  rarity = Common
+  display_name = "Netherrack"
+  buy_price = int 
+  sell_price = int
+  description = None
   
 class Blackstone(Block):
-  emoji_id="<:Blackstone:954585850774163466>"
-  rarity=Common
-  display_name="Blackstone"
+  emoji_id = "<:Blackstone:954585850774163466>"
+  rarity = Common
+  display_name = "Blackstone"
+  buy_price = int 
+  sell_price = int
+  description = None
   
 class Basalt(Block):
-  emoji_id="<:Basalt:954585850782547979>"
-  rarity=Common
-  display_name="Basalt"
+  emoji_id = "<:Basalt:954585850782547979>"
+  rarity = Common
+  display_name = "Basalt"
+  buy_price = int 
+  sell_price = int
+  description = None
   
 def get_y_section(y):
   if y <= 64 and y > 48:
@@ -305,31 +385,8 @@ Diamond: 78
   }
 }
 
-
-
-
-
 def ore_drop_multipler(ore):
   pass
 
-
-
-
-### NOT FINAL ONLY REFERENCE ###
-#Redstone buy_price = 3, 
-#Coal buy_price = 8
-#Lapis buy_price = 5
-#iron buy_price = 20 
-#gold buy_price = 50 
-#emerald buy_price = 100 
-#diamond buy_price = 250 
-
-"""Coal, diamond, emerald, their respective deepslate variants, and nether quartz ores drop 1 unit of their corresponding material.
-Iron, gold, and their respective deepslate variants drop 1 unit of their raw form.
-Copper and deepslate copper ores drop 2-5 raw copper.
-Redstone and deepslate redstone ores drop 4–5 redstone dust.
-Lapis lazuli and deepslate lapis lazuli ores drop 4–9 lapis lazuli.
-Nether gold ore drops 2–6 gold nuggets.
-Ancient debris is the exception; it drops itself when mined and must be smelted to obtain netherite scrap.
-
+"""
 which means Fortune II gives 1.75x (13⁄4) drops on average, Fortune III gives 2.2x (21⁄5) drops on average, etc."""
