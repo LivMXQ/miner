@@ -41,7 +41,7 @@ class User: #all here
 
   
   def return_to_base(self):
-    if db["users"][str(self.user.id)]["y"] < 64:
+    if self.data["y"] < 64:
       db["users"][str(self.user.id)]["y"] = 64
       return True
     else:
@@ -96,13 +96,13 @@ class User: #all here
     return True
 
   def change_y(self):
-    config = db["users"][str(self.user.id)]["configurations"]
-    y = db["users"][str(self.user.id)]["y"]
+    config = self.data["configurations"]
+    y = self.data["y"]
     if config["mining_direction"] == "down":
       db["users"][str(self.user.id)]["y"] = y - random.randint(0,4)
     elif config["mining_direction"] == "up":
       db["users"][str(self.user.id)]["y"] = y + random.randint(0,4)
-    new_y = db["users"][str(self.user.id)]["y"]
+    new_y = self.data["y"]
     if new_y > 64:
       db["users"][str(self.user.id)]["y"] = 64
     if new_y < -64:
@@ -111,20 +111,20 @@ class User: #all here
   
   def sort_inventory(self, key="by_name"):
     if key=="by_name":
-      keys = [i for i in db["users"][str(self.user.id)]["inventory"].keys()]
+      keys = [i for i in self.data["inventory"].keys()]
       keys.sort(key=lambda x: pickle.loads(x.encode()).__name__)    
-      db["users"][str(self.user.id)]["inventory"] = dict(zip(keys,[db["users"][str(self.user.id)]["inventory"][i] for i in keys]))
+      db["users"][str(self.user.id)]["inventory"] = dict(zip(keys,[self.data["inventory"][i] for i in keys]))
 
     
   def add_item_to_inventory(self, item, amount):
     pickled = pickle.dumps(item, 0).decode()
-    if pickled not in db["users"][str(self.user.id)]["inventory"]:
+    if pickled not in self.data["inventory"]:
       db["users"][str(self.user.id)]["inventory"][pickled] = amount
     else:     
       db["users"][str(self.user.id)]["inventory"][pickled] += amount
   
   def remove_item_from_inventory(self, item, amount):
-    if item not in db["users"][str(self.user.id)]["inventory"]:
+    if item not in self.data["inventory"]:
       return False
     else:     
       db["users"][str(self.user.id)]["inventory"][item] -= amount
@@ -132,8 +132,8 @@ class User: #all here
   def get_inventory_embed(self):
     self.sort_inventory(self.get_user_data("configurations", "inventory_key"))
     value = []
-    for i in db["users"][str(self.user.id)]["inventory"]:
-      if db["users"][str(self.user.id)]["inventory"] != 0:
+    for i in self.data["inventory"]:
+      if self.data["inventory"] != 0:
         item = pickle.loads(i.encode())
         value.append(f"""{item.emoji_id} **{item.display_name}** × {self.data["inventory"][i]}""")
     embed = discord.Embed(title=f"{self.user.name}'s Inventory", description="\n".join(value), colour=6671615)
@@ -143,11 +143,11 @@ class User: #all here
   def update_default_dict(self):
     counter = 0
     for a in default_dictionary:
-      if a not in db["users"][str(self.user.id)].keys():
+      if a not in self.data.keys():
         db["users"][str(self.user.id)][a] = default_dictionary[a]
         counter +=1
     for b in default_dictionary["configurations"]:
-      if b not in db["users"][str(self.user.id)]["configurations"]:
+      if b not in self.data["configurations"]:
         db["users"][str(self.user.id)]["configurations"][b] = default_dictionary["configurations"][b]
         counter +=1
     return counter

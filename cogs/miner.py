@@ -9,7 +9,7 @@ cooldowns = dict()
 registeredviews = list()
 currentview = None
 
-admin_users = ["714826336102907976","895289342497538059", "808223912688746496"]#hegen, liv, dwizard 
+admin_users = ["895289342497538059", "808223912688746496", "836571495886880829"]#liv, dwizard, jadentrain69
 
 class endinteractionbtn(Button):
     def __init__(self, row=1):
@@ -100,7 +100,7 @@ class Miner(commands.Cog):
     @commands.command(name="returntobase", aliases=["rtb"])
     async def returntobase(self, ctx):
         _user = user.User(ctx.author)
-        if _user.return_to_basetobase():
+        if _user.return_to_base():
             await ctx.send("You Successfully returned to base!")
         else:
             await ctx.send("You are already in your base lol")
