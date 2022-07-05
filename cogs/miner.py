@@ -149,27 +149,27 @@ class Miner(commands.Cog):
       
     @commands.command(name="settings", aliases = ["config","setting"])
     @check_if_in_db() 
-    async def setting(self, ctx, *args):
+    async def setting(self, ctx, *setting):
       _user = user.User(ctx.author)
-      if not args:
+      if not setting:
         config = _user.get_user_data("configurations")
         embed = discord.Embed(title=f"{ctx.author.name}'s configurations")
         for i in config:
           embed.add_field(name=i, value=config[i], inline=False)
         await ctx.send(embed=embed)
         
-      elif args[0] == "direction" or args[0] == "mining_direction":
-        if args[1] == "up":
+      elif setting[0] == "direction" or setting[0] == "mining_direction":
+        if setting[1] == "up":
           _user.update_user_data("up", "config", "mining_direction")
           ctx.send("Congratulations! You are now mining upwards!") 
-        if args[1] == "down":
+        if setting[1] == "down":
           _user.update_user_data("down", "config", "mining_direction") 
           await ctx.send("Congratulations! You are now mining downwards!")
 
           
     @commands.command(name="shop")
     @check_if_in_db()
-    async def shop(self, ctx, *args):
+    async def shop(self, ctx, *item):
       pass
       
 def setup(bot: commands.bot):

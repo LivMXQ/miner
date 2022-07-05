@@ -32,9 +32,9 @@ class MyHelp(commands.HelpCommand):
       embed.add_field(name='Cooldown', value=f'{cooldown}s')
     except:
       pass
-    alias = ", -".join(command.aliases)
+    alias = ", ;".join(command.aliases)
     if alias:
-      embed.add_field(name="Aliases", value=f"-{alias}", inline=False)
+      embed.add_field(name="Aliases", value=f";{alias}", inline=False)
     embed.set_footer(text="Usage Syntax: <required> [optional]")
 
     ctx = self.get_destination()
