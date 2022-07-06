@@ -166,7 +166,7 @@ class Miner(commands.Cog):
           _user.update_user_data("down", "config", "mining_direction") 
           await ctx.send("Congratulations! You are now mining downwards!")
 
-          
+    
     @commands.command(name="shop")
     @check_if_in_db()
     async def shop(self, ctx, *item):

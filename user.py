@@ -95,7 +95,7 @@ class User: #all here
     db["users"].pop(str(self.user.id))
     return True
 
-  def change_y(self):
+  def change_y(self) -> int:
     config = self.data["configurations"]
     y = self.data["y"]
     if config["mining_direction"] == "down":
