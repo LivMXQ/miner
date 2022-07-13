@@ -1,5 +1,6 @@
-import random
 "This is OOP at its finest"
+import random
+import discord
 
 class Event:
   pass
@@ -36,7 +37,11 @@ class Special(Rarity):
   id = 14437965
 
 class Item():
-  pass
+  def item_embed(self):
+    embed = discord.Embed(title=f"{self.__class__.__name__}s")
+    for i in self.__class__.__subclasses__():
+      embed.add_field(name=i.display_name, value=None)
+    return embed
 
 class Ore(Item):
   sellable = True
@@ -385,8 +390,7 @@ Diamond: 78
   }
 }
 
-def ore_drop_multipler(ore):
-  pass
+
 
 """
 which means Fortune II gives 1.75x (13⁄4) drops on average, Fortune III gives 2.2x (21⁄5) drops on average, etc."""

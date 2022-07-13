@@ -1,15 +1,59 @@
+"sdk"
 import discord
 import random
 import pickle
 import resource as src
 from replit import db
 
+registeredviews = list()
+currentview = None
 pickaxe = src.Wooden_Pickaxe()
 default_dictionary = {'y': 64, 'inventory': {}, 'pickaxe': pickle.dumps(pickaxe, 0).decode(), 'configurations': {'mining_direction': 'Down', "inventory_key":"by_name"}, "story":0}
+
+def get_class_by_name(name, list):
+  "returns the class with the name given within a list of classes"
+  for i in list:
+    if i.__name__ == name:
+      return i
+  return
 
 def get_all_users():
   return db["users"]
 
+def get_all_items() -> list:
+  "returns a list of all the items"
+  item_list = []
+  for i in src.Item.__subclasses__():
+    for j in i.__subclasses__():
+      item_list.append(j)
+  return item_list
+
+def initialize_cooldowns(cooldowns_):
+    for i in db["users"]:
+        user_id = i
+        duration = 17.5
+        cooldowns_[user_id] = discord.ext.commands.CooldownMapping.from_cooldown(
+            1, duration, discord.ext.commands.BucketType.user)
+
+
+def item_message(ctx):
+  default = "Ore"
+  catagory = get_class_by_name(default, src.Item.__subclasses__())
+  shop_view = ViewTimeout(ctx=ctx, timeout=20)
+  
+  class ShopSelect(discord.ui.Select):
+    def __init__(self): 
+      super().__init__(options=[discord.SelectOption(label=i.__name__) for i in src.Item.__subclasses__()])
+
+    async def callback(self, interaction):
+      catagory = get_class_by_name(self.values[0], src.Item.__subclasses__())
+      await interaction.response.edit_message(embed=catagory().item_embed())
+      
+
+  shop_select = ShopSelect()
+  shop_view.add_item(shop_select)
+  return catagory().item_embed(), shop_view
+  
 
 class User: #all here
   def __init__(self, user):
@@ -22,6 +66,16 @@ class User: #all here
 
   def get_multipler(self): #still working on this
     return 1
+
+  async def create_account(self):
+    db["users"][str(self.user.id)] = default_dictionary
+    if isinstance(self.user, discord.Member):
+      try:
+        role = discord.utils.get(self.user.guild.roles, name="Minor ⛏️")
+        await self.user.add_roles(role)
+      except:
+        print(f"WARN: Minor role not granted on account create")
+    return True
 
   def mine_(self):
     y = self.get_user_data("y")
@@ -46,16 +100,7 @@ class User: #all here
       return True
     else:
       return False
-      
-  async def create_account(self):
-    db["users"][str(self.user.id)] = default_dictionary
-    if isinstance(self.user, discord.Member):
-      try:
-        role = discord.utils.get(self.user.guild.roles, name="Minor ⛏️")
-        await self.user.add_roles(role)
-      except:
-        print(f"WARN: Minor role not granted on account create")
-    return True
+    
     
   def update_user_data(self, value, *type):
     if self.check_if_in_db():
@@ -129,7 +174,7 @@ class User: #all here
     else:     
       db["users"][str(self.user.id)]["inventory"][item] -= amount
 
-  def get_inventory_embed(self):
+  def inventory_embed(self):
     self.sort_inventory(self.get_user_data("configurations", "inventory_key"))
     value = []
     for i in self.data["inventory"]:
@@ -152,3 +197,30 @@ class User: #all here
         counter +=1
     return counter
     
+class endinteractionbtn(discord.ui.Button):
+    def __init__(self, row=1):
+        super().__init__(label="End Interaction")
+
+    async def callback(self, interaction):
+        await currentview.disable_all()
+        await interaction.response.edit_message(view=currentview)
+
+
+class ViewTimeout(discord.ui.View):
+    def __init__(self, ctx, timeout=10):
+      super().__init__(timeout=timeout)
+      self.inactive = False
+      self.ctx = ctx
+
+    async def on_timeout(self):
+        if self.inactive == False:
+          self.disable_all_items()
+          await self.message.edit(view=self)
+
+    async def interaction_check(self, interaction: discord.Interaction):
+        if interaction.user != self.ctx.author:
+            await interaction.response.send_message(
+                "That's not your miner bro", ephemeral=True)
+            return False
+        else:
+            return True
