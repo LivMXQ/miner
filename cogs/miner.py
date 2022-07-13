@@ -124,10 +124,13 @@ class Miner(commands.Cog):
           await ctx.send("Congratulations! You are now mining downwards!")
 
     @commands.command(name="item")
-    async def item(self, ctx, item):
-      item_names = [i.display_name for i in user.get_all_items()]
-      item = process.extractOne(item, item_names)
-      await ctx.send(item)
+    async def item(self, ctx, item_name=None):
+      if not item_name: 
+        pass
+      else:
+        item_names = [i.display_name for i in user.get_all_items()]
+        item = process.extractOne(item_name, item_names)
+        await ctx.send(embed=user.get_class(item[0], user.get_all_items(), key="display_name")().item_embed())
 
     @commands.command(name="collections", aliases=["col", "collection"])
     async def collections(self, ctx, *item):

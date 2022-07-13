@@ -37,10 +37,14 @@ class Special(Rarity):
   id = 14437965
 
 class Item():
-  def item_embed(self):
+  def catagory_embed(self):
     embed = discord.Embed(title=f"{self.__class__.__name__}s")
     for i in self.__class__.__subclasses__():
       embed.add_field(name=i.display_name, value=None)
+    return embed
+
+  def item_embed(self):
+    embed = discord.Embed(title=self.__class__.display_name + " " + self.emoji_id, description=self.description)
     return embed
 
 class Ore(Item):
@@ -60,7 +64,7 @@ class Coal(Ore):
 class Copper_Ingot(Ore):
   emoji_id = "<:Copper_Ingot:954584616763789392>"
   rarity = Uncommon
-  display_name = "Copper Ingot"
+  display_name = "Copper"
   buy_price = 36
   sell_price = 30
   description = None
@@ -71,7 +75,7 @@ class Copper_Ingot(Ore):
 class Iron_Ingot(Ore):
   emoji_id = "<:Iron_Ingot:954584616742846554>"
   rarity = Uncommon
-  display_name = "Iron Ingot"
+  display_name = "Iron"
   buy_price = 144 
   sell_price = 120
   description = None
@@ -79,7 +83,7 @@ class Iron_Ingot(Ore):
 class Gold_Ingot(Ore):
   emoji_id = "<:Gold_Ingot:954584616738619462>"
   rarity = Rare
-  display_name = "Gold Ingot"
+  display_name = "Gold"
   buy_price = 318 
   sell_price = 289
   description = None
@@ -150,7 +154,7 @@ class Nether_Quartz(Ore):
 class Netherite_Ingot(Ore):
   emoji_id = "<:Netherite_Ingot:954584616835100762>"
   rarity = Legendary
-  display_name = "Netherite Ingot"
+  display_name = "Netherite"
   buy_price = int 
   sell_price = int
   description = None

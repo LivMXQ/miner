@@ -10,12 +10,18 @@ currentview = None
 pickaxe = src.Wooden_Pickaxe()
 default_dictionary = {'y': 64, 'inventory': {}, 'pickaxe': pickle.dumps(pickaxe, 0).decode(), 'configurations': {'mining_direction': 'Down', "inventory_key":"by_name"}, "story":0}
 
-def get_class_by_name(name, list):
+def get_class(name, list, key="name"):
   "returns the class with the name given within a list of classes"
-  for i in list:
-    if i.__name__ == name:
-      return i
-  return
+  if key == "name":
+    for i in list:
+      if i.__name__ == name:
+        return i
+    return
+  elif key == "display_name":
+    for i in list:
+      if i.display_name == name:
+        return i
+    return
 
 def get_all_users():
   return db["users"]
@@ -38,7 +44,7 @@ def initialize_cooldowns(cooldowns_):
 
 def item_message(ctx):
   default = "Ore"
-  catagory = get_class_by_name(default, src.Item.__subclasses__())
+  catagory = get_class(default, src.Item.__subclasses__())
   shop_view = ViewTimeout(ctx=ctx, timeout=20)
   
   class ShopSelect(discord.ui.Select):
@@ -46,13 +52,13 @@ def item_message(ctx):
       super().__init__(options=[discord.SelectOption(label=i.__name__) for i in src.Item.__subclasses__()])
 
     async def callback(self, interaction):
-      catagory = get_class_by_name(self.values[0], src.Item.__subclasses__())
-      await interaction.response.edit_message(embed=catagory().item_embed())
+      catagory = get_class(self.values[0], src.Item.__subclasses__())
+      await interaction.response.edit_message(embed=catagory().catagory_embed())
       
 
   shop_select = ShopSelect()
   shop_view.add_item(shop_select)
-  return catagory().item_embed(), shop_view
+  return catagory().catagory_embed(), shop_view
   
 
 class User: #all here
