@@ -9,38 +9,33 @@ cooldowns = dict()
 
 class Miner(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
-        user.initialize_cooldowns(cooldowns)
+      self.bot = bot
+      user.initialize_cooldowns(cooldowns)
 
     def check_cooldown():
-        async def predicate(ctx):
-            user_id = str(ctx.author.id)
-            if user_id in admin_users:
-                return True
-            else:
-                if user_id in cooldowns:
-                    bucket = cooldowns[user_id].get_bucket(ctx.message)
-                    retry_after = bucket.update_rate_limit()
-                    if retry_after:
-                        raise commands.CommandOnCooldown(
-                            bucket, retry_after, commands.BucketType.user)
-                else:
-                    raise UserNotInDb(ctx.author)
-                return True
-
-        return commands.check(predicate)
+      async def predicate(ctx):
+        user_id = str(ctx.author.id)
+        if user_id in admin_users:
+          return True
+        if user_id in cooldowns:
+          bucket = cooldowns[user_id].get_bucket(ctx.message)
+          retry_after = bucket.update_rate_limit()
+          if retry_after:
+            raise commands.CommandOnCooldown(bucket, retry_after, commands.BucketType.user)
+          else:
+            raise UserNotInDb(ctx.author)
+        return True
+      return commands.check(predicate)
 
     def check_if_in_db():
         async def predicate(ctx):
-            _user = user.User(ctx.author)
-            if not _user.check_if_in_db():
-                raise UserNotInDb(ctx.author)
-            return True
-
+          _user = user.User(ctx)
+          if not _user.check_if_in_db():
+            raise UserNotInDb(ctx.author)
+          return True
         return commands.check(predicate)
 
     @commands.command(name="distribution", aliases=["dist"])
-  
     async def distrubution(self, ctx):
         embed = discord.Embed(title="Miner Ore Distributing Chart")
         embed.set_image(url="https://i.ibb.co/Rg90Qnn/b3bak5eige381-png.png")
@@ -50,14 +45,13 @@ class Miner(commands.Cog):
     @check_cooldown()
     @check_if_in_db()
     async def mine(self, ctx):
-      _user = user.User(ctx.author)
-      embed = _user.mine_()
-      await ctx.send(embed=embed)
+      _user = user.User(ctx)
+      await _user.mine_()
       
     
     @commands.command(name="returntobase", aliases=["rtb"])
     async def returntobase(self, ctx):
-        _user = user.User(ctx.author)
+        _user = user.User(ctx)
         if _user.return_to_base():
             await ctx.send("You Successfully returned to base!")
         else:
@@ -68,13 +62,22 @@ class Miner(commands.Cog):
     @check_if_in_db()
     async def inventory(self, ctx):
       _user = user.User(ctx.author)
-      embed = _user.inventory_embed()
-      await ctx.send(embed=embed)
+      await _user.send_inventory_message()
+
+    @commands.command(name="collections", aliases=["col", "collection"])
+    @check_if_in_db()
+    async def collections(self, ctx, *item):
+      _user = user.User(ctx)
+      if item:
+        pass
+      else:
+        pass
+        await _user.send_collection_message()
       
 
     @commands.command(name="createaccount", aliases=["start", "create"])
     async def createaccount(self, ctx):
-        _user = user.User(ctx.author)
+        _user = user.User(ctx)
         if _user.check_if_in_db():
             await ctx.send("You already have an account bro.")
         else:
@@ -86,7 +89,7 @@ class Miner(commands.Cog):
     @commands.command(name="deleteaccount")
     @check_if_in_db()
     async def deleteaccount(self, ctx):
-        _user = user.User(ctx.author)
+        _user = user.User(ctx)
         cfmbtn = discord.ui.Button(label="CONFIRM", style=discord.ButtonStyle.danger)
         cfmview = user.ViewTimeout(timeout=10, ctx=ctx)
         cfmview.add_item(cfmbtn)
@@ -107,7 +110,7 @@ class Miner(commands.Cog):
     @commands.command(name="settings", aliases = ["config","setting"])
     @check_if_in_db() 
     async def setting(self, ctx, *setting):
-      _user = user.User(ctx.author)
+      _user = user.User(ctx)
       if not setting:
         config = _user.get_user_data("configurations")
         embed = discord.Embed(title=f"{ctx.author.name}'s configurations")
@@ -130,17 +133,8 @@ class Miner(commands.Cog):
       else:
         item_names = [i.display_name for i in user.get_all_items()]
         item = process.extractOne(item_name, item_names)
-        await ctx.send(embed=user.get_class(item[0], user.get_all_items(), key="display_name")().item_embed())
-
-    @commands.command(name="collections", aliases=["col", "collection"])
-    async def collections(self, ctx, *item):
-      if item:
         pass
-      else:
-        embed, view = user.item_message(ctx)
-        view.message = await ctx.send(embed=embed, view=view)
-
-    
+        
     @commands.command(name="shop")
     @check_if_in_db()
     async def shop(self, ctx, item):

@@ -1,14 +1,27 @@
 "sdk"
 import discord
+import os
 import random
 import pickle
 import resource as src
-from replit import db
+from replit import Database
 
+db = Database(os.getenv("REPLIT_DB_URL"))
+if "users" not in db.keys():
+  db["users"] = dict()
+  
 registeredviews = list()
 currentview = None
 pickaxe = src.Wooden_Pickaxe()
-default_dictionary = {'y': 64, 'inventory': {}, 'pickaxe': pickle.dumps(pickaxe, 0).decode(), 'configurations': {'mining_direction': 'Down', "inventory_key":"by_name"}, "story":0}
+default_dictionary = {
+  'y': 64, 
+  'inventory': {}, 
+  "collection": {}, 
+  'pickaxe': pickle.dumps(pickaxe, 0).decode(), 
+  "experience": 0, 
+  'configurations': {'mining_direction': 'down', "inventory_key":"by_name"}, 
+  "story":0
+  }
 
 def get_class(name, list, key="name"):
   "returns the class with the name given within a list of classes"
@@ -35,35 +48,16 @@ def get_all_items() -> list:
   return item_list
 
 def initialize_cooldowns(cooldowns_):
+  if db["users"]:
     for i in db["users"]:
-        user_id = i
-        duration = 17.5
-        cooldowns_[user_id] = discord.ext.commands.CooldownMapping.from_cooldown(
-            1, duration, discord.ext.commands.BucketType.user)
+      user_id = i
+      duration = 17.5
+      cooldowns_[user_id] = discord.ext.commands.CooldownMapping.from_cooldown(1, duration, discord.ext.commands.BucketType.user)  
 
-
-def item_message(ctx):
-  default = "Ore"
-  catagory = get_class(default, src.Item.__subclasses__())
-  shop_view = ViewTimeout(ctx=ctx, timeout=20)
-  
-  class ShopSelect(discord.ui.Select):
-    def __init__(self): 
-      super().__init__(options=[discord.SelectOption(label=i.__name__) for i in src.Item.__subclasses__()])
-
-    async def callback(self, interaction):
-      catagory = get_class(self.values[0], src.Item.__subclasses__())
-      await interaction.response.edit_message(embed=catagory().catagory_embed())
-      
-
-  shop_select = ShopSelect()
-  shop_view.add_item(shop_select)
-  return catagory().catagory_embed(), shop_view
-  
-
-class User: #all here
-  def __init__(self, user):
-    self.user = user
+class User: 
+  def __init__(self, ctx):
+    self.ctx = ctx
+    self.user = ctx.author
     self.data = self.get_user_data() #ONYL USE THIS TO READ DATA
 
   def get_cooldown(self): #still working on this 
@@ -75,15 +69,26 @@ class User: #all here
 
   async def create_account(self):
     db["users"][str(self.user.id)] = default_dictionary
-    if isinstance(self.user, discord.Member):
-      try:
-        role = discord.utils.get(self.user.guild.roles, name="Minor ⛏️")
-        await self.user.add_roles(role)
-      except:
-        print(f"WARN: Minor role not granted on account create")
     return True
 
-  def mine_(self):
+  async def send_collection_message(self):
+    default = "Ore"
+    catagory = get_class(default, src.Item.__subclasses__())
+    shop_view = ViewTimeout(ctx=self.ctx, timeout=20)
+    
+    class ShopSelect(discord.ui.Select):
+      def __init__(self): 
+        super().__init__(options=[discord.SelectOption(label=i.__name__) for i in src.Item.__subclasses__() if i.__name__ != "Pickaxe"])
+
+      async def callback(self, interaction):
+        catagory = get_class(self.values[0], src.Item.__subclasses__())
+        await interaction.response.edit_message(embed=catagory().collection_embed())    
+
+    shop_select = ShopSelect()
+    shop_view.add_item(shop_select)
+    shop_view.message = await self.ctx.send(emebd=catagory().collection_embed(), view=shop_view)
+
+  async def mine_(self):
     y = self.get_user_data("y")
     choice = random.choices([src.MineOreEvent, src.OtherEventLol], [93.716, 6.284])[0]
     if choice == src.MineOreEvent:
@@ -94,19 +99,29 @@ class User: #all here
       embed = discord.Embed(title=f"{self.user.name}'s booty",description=f"You swung your pickaxe and got {multipler} {loot.display_name} {loot.emoji_id}", color=loot.rarity.id)
       new_y = y + change
       embed.set_footer(text=f"new y-level ─ {new_y}") 
-      self.add_item_to_inventory(loot, multipler)
+      self.inventory_add(loot, multipler)
+      self.collection_add(loot, multipler)
     elif choice == src.OtherEventLol:
       embed = discord.Embed(title=f"{self.user.name}'s event", color=discord.Colour.gold())
-    return embed
+    await self.ctx.send(embed=embed)
 
-  
+  async def send_inventory_message(self):
+    self.sort_inventory(self.data["configurations"]["inventory_key"])
+    value = []
+    for i in self.data["inventory"]:
+      if self.data["inventory"] != 0:
+        item = get_class(i, get_all_items(), key="name")
+        value.append(f'{item.emoji_id} **{item.display_name}** × {self.data["inventory"][i]}')
+    embed = discord.Embed(title=f"{self.user.name}'s Inventory", description="\n".join(value), colour=2123412)
+    embed.set_footer(text="You can't use 'pls use [item]' to use an item lol")
+    await self.ctx.send(embed=embed)
+
   def return_to_base(self):
     if self.data["y"] < 64:
       db["users"][str(self.user.id)]["y"] = 64
       return True
     else:
       return False
-    
     
   def update_user_data(self, value, *type):
     if self.check_if_in_db():
@@ -163,33 +178,28 @@ class User: #all here
   def sort_inventory(self, key="by_name"):
     if key=="by_name":
       keys = [i for i in self.data["inventory"].keys()]
-      keys.sort(key=lambda x: pickle.loads(x.encode()).__name__)    
+      keys.sort(key=lambda x: x)    
       db["users"][str(self.user.id)]["inventory"] = dict(zip(keys,[self.data["inventory"][i] for i in keys]))
 
-    
-  def add_item_to_inventory(self, item, amount):
-    pickled = pickle.dumps(item, 0).decode()
-    if pickled not in self.data["inventory"]:
-      db["users"][str(self.user.id)]["inventory"][pickled] = amount
+  def inventory_add(self, item, amount):
+    _item = item.__name__
+    if _item not in self.data["inventory"]:
+      db["users"][str(self.user.id)]["inventory"][_item] = amount
     else:     
-      db["users"][str(self.user.id)]["inventory"][pickled] += amount
+      db["users"][str(self.user.id)]["inventory"][_item] += amount
+
+  def collection_add(self, item, amount):
+    _item = item.__name__
+    if _item not in self.data["inventory"]:
+      db["users"][str(self.user.id)]["inventory"][_item] = amount
+    else:     
+      db["users"][str(self.user.id)]["inventory"][_item] += amount
   
-  def remove_item_from_inventory(self, item, amount):
+  def inventory_remove(self, item, amount):
     if item not in self.data["inventory"]:
       return False
     else:     
       db["users"][str(self.user.id)]["inventory"][item] -= amount
-
-  def inventory_embed(self):
-    self.sort_inventory(self.get_user_data("configurations", "inventory_key"))
-    value = []
-    for i in self.data["inventory"]:
-      if self.data["inventory"] != 0:
-        item = pickle.loads(i.encode())
-        value.append(f"""{item.emoji_id} **{item.display_name}** × {self.data["inventory"][i]}""")
-    embed = discord.Embed(title=f"{self.user.name}'s Inventory", description="\n".join(value), colour=6671615)
-    embed.set_footer(text="You can't use 'pls use [item]' to use an item lol")
-    return embed
 
   def update_default_dict(self):
     counter = 0
@@ -205,11 +215,11 @@ class User: #all here
     
 class endinteractionbtn(discord.ui.Button):
     def __init__(self, row=1):
-        super().__init__(label="End Interaction")
+      super().__init__(label="End Interaction")
 
     async def callback(self, interaction):
-        await currentview.disable_all()
-        await interaction.response.edit_message(view=currentview)
+      await currentview.disable_all()
+      await interaction.response.edit_message(view=currentview)
 
 
 class ViewTimeout(discord.ui.View):
@@ -219,14 +229,13 @@ class ViewTimeout(discord.ui.View):
       self.ctx = ctx
 
     async def on_timeout(self):
-        if self.inactive == False:
-          self.disable_all_items()
-          await self.message.edit(view=self)
+      if self.inactive == False:
+        self.disable_all_items()
+        await self.message.edit(view=self)
 
     async def interaction_check(self, interaction: discord.Interaction):
-        if interaction.user != self.ctx.author:
-            await interaction.response.send_message(
-                "That's not your miner bro", ephemeral=True)
-            return False
-        else:
-            return True
+      if interaction.user != self.ctx.author:
+        await interaction.response.send_message("That's not your miner bro", ephemeral=True)
+        return False
+      else:
+        return True

@@ -24,7 +24,7 @@ class MyHelp(commands.HelpCommand):
       
     
   async def send_command_help(self, command):
-    embed = discord.Embed(title=f";{command} info", color=6671615)
+    embed = discord.Embed(title=f";{command} info", color=2123412)
     embed.add_field(name="Description", value=command.help)
     embed.add_field(name='Usage', value=self.get_command_signature(command), inline=False)
     try:
@@ -32,7 +32,7 @@ class MyHelp(commands.HelpCommand):
       embed.add_field(name='Cooldown', value=f'{cooldown}s')
     except:
       pass
-    alias = ", ;".join(command.aliases)
+    alias = ", b;".join(command.aliases)
     if alias:
       embed.add_field(name="Aliases", value=f";{alias}", inline=False)
     embed.set_footer(text="Usage Syntax: <required> [optional]")
@@ -43,7 +43,7 @@ class MyHelp(commands.HelpCommand):
     
   async def send_bot_help(self, mapping):
     ctx = self.get_destination()
-    embed = discord.Embed(title="Miner 2.0 List of Commands", color=6671615)
+    embed = discord.Embed(title="Minor 2.0 List of Commands", color=2123412)
     for cog, command in mapping.items():
       filtered = await self.filter_commands(command, sort=True)
       command_signatures = [self.get_command_signature(c) for c in filtered]

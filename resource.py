@@ -37,10 +37,8 @@ class Special(Rarity):
   id = 14437965
 
 class Item():
-  def catagory_embed(self):
-    embed = discord.Embed(title=f"{self.__class__.__name__}s")
-    for i in self.__class__.__subclasses__():
-      embed.add_field(name=i.display_name, value=None)
+  def collection_embed(self):
+    embed = discord.Embed(title="Yay")
     return embed
 
   def item_embed(self):

@@ -11,9 +11,12 @@ class ForNerds(commands.Cog):
   @commands.command()
   @commands.is_owner()
   async def dump(self, ctx):
-    await ctx.send("dumped!")
-    with open("dump.json", "w") as f:
-      json.dump(str(user.get_all_users()), f)
+    try:
+      with open("dump.json", "w") as f:
+        json.dump(str(user.get_all_users()), f)
+        await ctx.send("dumped!")
+    except:
+      await ctx.send("I THINK nothings in the db for now")
     
 
   @commands.command(aliases=["uu"])
