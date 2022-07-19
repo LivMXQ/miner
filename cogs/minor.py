@@ -4,6 +4,7 @@ from fuzzywuzzy import process
 from cogs.error import UserNotInDb
 from discord.ext import commands
 
+
 admin_users = ["895289342497538059", "808223912688746496", "836571495886880829"]#liv, dwizard, jadentrain69
 cooldowns = dict()
 
@@ -15,15 +16,15 @@ class Miner(commands.Cog):
     def check_cooldown():
       async def predicate(ctx):
         user_id = str(ctx.author.id)
-        if user_id in admin_users:
-          return True
         if user_id in cooldowns:
+          if user_id in admin_users:
+            return True
           bucket = cooldowns[user_id].get_bucket(ctx.message)
           retry_after = bucket.update_rate_limit()
           if retry_after:
             raise commands.CommandOnCooldown(bucket, retry_after, commands.BucketType.user)
-          else:
-            raise UserNotInDb(ctx.author)
+        else:
+          raise UserNotInDb(ctx.author)
         return True
       return commands.check(predicate)
 
@@ -61,7 +62,7 @@ class Miner(commands.Cog):
     @commands.command(name="inventory", aliases=["inv"])
     @check_if_in_db()
     async def inventory(self, ctx):
-      _user = user.User(ctx.author)
+      _user = user.User(ctx)
       await _user.send_inventory_message()
 
     @commands.command(name="collections", aliases=["col", "collection"])
@@ -71,12 +72,11 @@ class Miner(commands.Cog):
       if item:
         pass
       else:
-        pass
         await _user.send_collection_message()
       
 
-    @commands.command(name="createaccount", aliases=["start", "create"])
-    async def createaccount(self, ctx):
+    @commands.command(name="create account", aliases=["start", "create"])
+    async def create_account(self, ctx):
         _user = user.User(ctx)
         if _user.check_if_in_db():
             await ctx.send("You already have an account bro.")
@@ -86,9 +86,9 @@ class Miner(commands.Cog):
             await ctx.send("Created a miner for you!", mention_author=False)
 
   
-    @commands.command(name="deleteaccount")
+    @commands.command(name="delete account", aliases=["delete", "bai"])
     @check_if_in_db()
-    async def deleteaccount(self, ctx):
+    async def delete_account(self, ctx):
         _user = user.User(ctx)
         cfmbtn = discord.ui.Button(label="CONFIRM", style=discord.ButtonStyle.danger)
         cfmview = user.ViewTimeout(timeout=10, ctx=ctx)

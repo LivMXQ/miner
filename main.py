@@ -20,7 +20,7 @@ for filename in os.listdir('./cogs'):
 
 @bot.event
 async def on_ready():
-  await bot.change_presence(activity = discord.Activity(type=discord.ActivityType.listening, name="b;help"), status=discord.Status.online)
+  await bot.change_presence(activity = discord.Activity(type=discord.ActivityType.listening, name=os.getenv("PREFIX")+"help"), status=discord.Status.online)
   print('We have logged in as {0.user}'.format(bot))
 
 @bot.event

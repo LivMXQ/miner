@@ -19,7 +19,7 @@ class ForNerds(commands.Cog):
       await ctx.send("I THINK nothings in the db for now")
     
 
-  @commands.command(aliases=["uu"])
+  @commands.command(name="update users",aliases=["uu"])
   @commands.is_owner()
   async def update_users(self, ctx):
     for i in db["users"]:

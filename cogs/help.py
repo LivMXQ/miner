@@ -1,4 +1,5 @@
 import discord
+import os
 from discord.ext import commands
 
 
@@ -24,7 +25,7 @@ class MyHelp(commands.HelpCommand):
       
     
   async def send_command_help(self, command):
-    embed = discord.Embed(title=f";{command} info", color=2123412)
+    embed = discord.Embed(title=os.getenv("PREFIX") + command.name + " info", color=2123412)
     embed.add_field(name="Description", value=command.help)
     embed.add_field(name='Usage', value=self.get_command_signature(command), inline=False)
     try:
@@ -32,9 +33,9 @@ class MyHelp(commands.HelpCommand):
       embed.add_field(name='Cooldown', value=f'{cooldown}s')
     except:
       pass
-    alias = ", b;".join(command.aliases)
+    alias = (", "+os.getenv("PREFIX")).join(command.aliases)
     if alias:
-      embed.add_field(name="Aliases", value=f";{alias}", inline=False)
+      embed.add_field(name="Aliases", value=os.getenv("PREFIX")+alias, inline=False)
     embed.set_footer(text="Usage Syntax: <required> [optional]")
 
     ctx = self.get_destination()
