@@ -6,7 +6,7 @@ import pickle
 import resource as src
 from replit import Database
 
-bot_colour = os.getenv("COLOUR")
+bot_colour = int(os.getenv("COLOUR"))
 
 db = Database(os.getenv("REPLIT_DB_URL"))
 if "users" not in db.keys():
@@ -101,11 +101,14 @@ class User:
       embed = discord.Embed(title=f"{self.user.name}'s booty",description=f"You swung your pickaxe and got {multipler} {loot.display_name} {loot.emoji_id}", color=loot.rarity.id)
       new_y = y + change
       embed.set_footer(text=f"new y-level ─ {new_y}") 
+      await self.ctx.send(embed=embed)
       self.inventory_add(loot, multipler)
-      self.collection_add(loot, multipler)
+      if self.collection_add(loot, multipler) == 1:
+        unlock_embed = discord.Embed(title="✨NEW COLLECTION UNLOCKED✨", description=loot.emoji_id + loot.display_name, colour=loot.rarity.id)
+        await self.ctx.send(embed=unlock_embed)
     elif choice == src.OtherEventLol:
       embed = discord.Embed(title=f"{self.user.name}'s event", color=discord.Colour.gold())
-    await self.ctx.send(embed=embed)
+      await self.ctx.send(embed=embed)
 
   async def send_inventory_message(self):
     self.sort_inventory(self.data["configurations"]["inventory_key"])
@@ -194,8 +197,10 @@ class User:
     _item = item.__name__
     if _item not in self.data["inventory"]:
       db["users"][str(self.user.id)]["inventory"][_item] = amount
+      return 1
     else:     
       db["users"][str(self.user.id)]["inventory"][_item] += amount
+      return 0
   
   def inventory_remove(self, item, amount):
     if item not in self.data["inventory"]:
