@@ -6,6 +6,8 @@ import pickle
 import resource as src
 from replit import Database
 
+bot_colour = os.getenv("COLOUR")
+
 db = Database(os.getenv("REPLIT_DB_URL"))
 if "users" not in db.keys():
   db["users"] = dict()
@@ -112,7 +114,7 @@ class User:
       if self.data["inventory"] != 0:
         item = get_class(i, get_all_items(), key="name")
         value.append(f'{item.emoji_id} **{item.display_name}** × {self.data["inventory"][i]}')
-    embed = discord.Embed(title=f"{self.user.name}'s Inventory", description="\n".join(value), colour=2123412)
+    embed = discord.Embed(title=f"{self.user.name}'s Inventory", description="\n".join(value), colour=bot_colour)
     embed.set_footer(text="You can't use 'pls use [item]' to use an item lol")
     await self.ctx.send(embed=embed)
 

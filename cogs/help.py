@@ -2,6 +2,7 @@ import discord
 import os
 from discord.ext import commands
 
+bot_colour = int(os.getenv("COLOUR"))
 
 class MyHelp(commands.HelpCommand):  
   def __init__(self):
@@ -25,7 +26,7 @@ class MyHelp(commands.HelpCommand):
       
     
   async def send_command_help(self, command):
-    embed = discord.Embed(title=os.getenv("PREFIX") + command.name + " info", color=2123412)
+    embed = discord.Embed(title=os.getenv("PREFIX") + command.name + " info", color=bot_colour)
     embed.add_field(name="Description", value=command.help)
     embed.add_field(name='Usage', value=self.get_command_signature(command), inline=False)
     try:
@@ -44,7 +45,7 @@ class MyHelp(commands.HelpCommand):
     
   async def send_bot_help(self, mapping):
     ctx = self.get_destination()
-    embed = discord.Embed(title="Minor 2.0 List of Commands", color=2123412)
+    embed = discord.Embed(title="Minor 2.0 List of Commands", color=bot_colour)
     for cog, command in mapping.items():
       filtered = await self.filter_commands(command, sort=True)
       command_signatures = [self.get_command_signature(c) for c in filtered]

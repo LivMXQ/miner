@@ -121,7 +121,7 @@ class Miner(commands.Cog):
       elif setting[0] == "direction" or setting[0] == "mining_direction":
         if setting[1] == "up":
           _user.update_user_data("up", "config", "mining_direction")
-          await ctx.send("Congratulations! You are now mining upwards!") 
+          await ctx.send("Congratulatiusons! You are now mining upwards!") 
         if setting[1] == "down":
           _user.update_user_data("down", "config", "mining_direction") 
           await ctx.send("Congratulations! You are now mining downwards!")
@@ -132,8 +132,8 @@ class Miner(commands.Cog):
         pass
       else:
         item_names = [i.display_name for i in user.get_all_items()]
-        item = process.extractOne(item_name, item_names)
-        pass
+        item = user.get_class(process.extractOne(item_name, item_names)[0], user.get_all_items(), key="display_name")
+        await ctx.send(embed=item().item_embed())
         
     @commands.command(name="shop")
     @check_if_in_db()

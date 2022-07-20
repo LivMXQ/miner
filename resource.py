@@ -1,6 +1,9 @@
 "This is OOP at its finest"
 import random
+import os
 import discord
+
+bot_colour = int(os.getenv("COLOUR"))
 
 class Event:
   pass
@@ -42,8 +45,19 @@ class Item():
     return embed
 
   def item_embed(self):
-    embed = discord.Embed(title=self.__class__.display_name + " " + self.emoji_id, description=self.description)
+    desc = "\n> " + self.description + "\n"
+    if self.buy_price:
+      desc += ("\n**BUY** - " + str(self.buy_price))
+    if self.sell_price:
+      desc += ("\n**SELL** - " + str(self.sell_price))
+    embed = discord.Embed(title=self.emoji_id + self.__class__.display_name + " " , description=desc, colour=bot_colour)
+    embed.add_field(name="Rarity" , value=self.rarity.__name__, inline=True)
+    embed.add_field(name="Catagory" , value=self.catagory().__name__, inline=True)
+    embed.add_field(name="ID", value=self.__class__.__name__, inline=True)
     return embed
+    
+  def catagory(self):
+    return self.__class__.__bases__[0]
 
 class Ore(Item):
   sellable = True
@@ -57,7 +71,7 @@ class Coal(Ore):
   display_name = "Coal"
   buy_price = 120
   sell_price = 100
-  description = None 
+  description = "bLAcK" 
 
 class Copper_Ingot(Ore):
   emoji_id = "<:Copper_Ingot:954584616763789392>"
@@ -65,7 +79,7 @@ class Copper_Ingot(Ore):
   display_name = "Copper"
   buy_price = 36
   sell_price = 30
-  description = None
+  description = "Yes"
   
   def drop_multipler(self) -> int:
     return random.randint(2, 4) 
@@ -76,7 +90,7 @@ class Iron_Ingot(Ore):
   display_name = "Iron"
   buy_price = 144 
   sell_price = 120
-  description = None
+  description = "Actually useful (in minecraft not here)"
   
 class Gold_Ingot(Ore):
   emoji_id = "<:Gold_Ingot:954584616738619462>"
@@ -84,7 +98,7 @@ class Gold_Ingot(Ore):
   display_name = "Gold"
   buy_price = 318 
   sell_price = 289
-  description = None
+  description = "looks pretty rare"
   
 class Lapis_Lazuli(Ore):
   emoji_id = "<:Lapis_Lazuli:954584616780570684>"
@@ -92,7 +106,7 @@ class Lapis_Lazuli(Ore):
   display_name = "Lapis"
   buy_price = 53 
   sell_price = 44
-  description = None
+  description = "Thats a lot of drops"
   
   def drop_multipler(self) -> int:
     return random.randint(4, 9) 
@@ -103,7 +117,7 @@ class Redstone_Dust(Ore):
   display_name = "Redstone"
   buy_price = 46 
   sell_price = 38
-  description = None
+  description = "Red-Stone...dust"
   
   def drop_multipler(self) -> int:
     return random.randint(4, 5) 
@@ -114,14 +128,16 @@ class Diamond(Ore):
   display_name = "Diamond" 
   buy_price = 470 
   sell_price = 427
-  description = None
+  description = "Epic!"
   
 class Ruby(Ore):
   sellable = False
   emoji_id = "<:Ruby:954584832866922526>"
   rarity = Special
   display_name = "Ruby"
-  description = None
+  buy_price = None
+  sell_price = None
+  description = "I wonder how you get this"
   
 class Emerald(Ore):
   emoji_id = "<:Emerald:954584616717660230>"
@@ -129,14 +145,16 @@ class Emerald(Ore):
   display_name = "Emerald"
   buy_price = 530
   sell_price = 482
-  description = None
+  description = "YOU LUCKY BASTARD"
   
 class Gold_Nugget(Ore):
   sellable = False
   emoji_id = "<:Gold_Nugget:954584616818335784>"
   rarity = Uncommon
   display_name = "Gold Nugget"
-  description = None
+  buy_price = None
+  sell_price = None
+  description = "Hmmm golden... nugget"
   
   def drop_multipler(self) -> int:
     return random.randint(2, 6) 
@@ -147,7 +165,7 @@ class Nether_Quartz(Ore):
   display_name = "Quartz"
   buy_price = int 
   sell_price = int
-  description = None
+  description = "wHItE"
   
 class Netherite_Ingot(Ore):
   emoji_id = "<:Netherite_Ingot:954584616835100762>"
@@ -155,7 +173,7 @@ class Netherite_Ingot(Ore):
   display_name = "Netherite"
   buy_price = int 
   sell_price = int
-  description = None
+  description = "NICE|CAR|RITE"
 
 class Pickaxe(Item):
   sellable = False
@@ -168,7 +186,9 @@ class Wooden_Pickaxe(Pickaxe):
   catagory="Pickaxe"
   rarity=Common
   display_name="Wooden Pickaxe"
-  description = None
+  buy_price = None
+  sell_price = None
+  description = "your trash kid (ok not really)"
   mining_speed = 2
   
   def __init__(self):
@@ -180,7 +200,9 @@ class Stone_Pickaxe(Pickaxe):
   catagory = "Pickaxe"
   rarity = Uncommon
   display_name  ="Stone Pickaxe"
-  description = None
+  buy_price = None
+  sell_price = None
+  description = "Getting an upgrade"
   mining_speed = 4
   
   def __init__(self):
@@ -192,7 +214,9 @@ class Iron_Pickaxe(Pickaxe):
   catagory = "Pickaxe"
   rarity = Rare
   display_name = "Iron Pickaxe"
-  description = None
+  buy_price = None
+  sell_price = None
+  description = "Isnt this iron pick"
   mining_speed = 6
   
   def __init__(self):
@@ -204,7 +228,9 @@ class Golden_Pickaxe(Pickaxe):
   catagory = "Pickaxe"
   rarity = Rare
   display_name = "Golden Pickaxe"
-  description = None
+  buy_price = None
+  sell_price = None
+  description = "Fast & not furious"
   mining_speed = 12
   
   def __init__(self):
@@ -216,7 +242,9 @@ class Diamond_Pickaxe(Pickaxe):
   catagory = "Pickaxe"
   rarity = Epic
   display_name = "Diamond Pickaxe"
-  description = None
+  buy_price = None
+  sell_price = None
+  description = "EPICCC!"
   mining_speed = 8
   
   def __init__(self):
@@ -228,7 +256,9 @@ class Netherite_Pickaxe(Pickaxe):
   catagory = "Pickaxe"
   rarity = Legendary
   display_name = "Netherite Pickaxe"
-  description = None
+  buy_price = None
+  sell_price = None
+  description = "NICEEE CARRR"
   mining_speed = 9
   
   def __init__(self):
@@ -248,7 +278,7 @@ class Cobblestone(Block):
   display_name = "Cobblestone"
   buy_price = 12
   sell_price = 10
-  description = None
+  description = "Plane old cobble"
 
 class Cobbled_Deepslate(Block):
   emoji_id = "<:Cobbled_Deepslate:955375789484945408>"
@@ -256,31 +286,31 @@ class Cobbled_Deepslate(Block):
   display_name = "Cobbled Deepslate"
   buy_price = 10
   sell_price = 8
-  description = None
+  description = "Cobble but cooler"
 
 class Netherrack(Block):
   emoji_id = "<:Netherrack:954585851319431169>"
   rarity = Common
   display_name = "Netherrack"
-  buy_price = int 
-  sell_price = int
-  description = None
+  buy_price = None 
+  sell_price = None
+  description = "FIX THE ROOF"
   
 class Blackstone(Block):
   emoji_id = "<:Blackstone:954585850774163466>"
   rarity = Common
   display_name = "Blackstone"
-  buy_price = int 
-  sell_price = int
-  description = None
+  buy_price = None 
+  sell_price = None
+  description = "cobble but black"
   
 class Basalt(Block):
   emoji_id = "<:Basalt:954585850782547979>"
   rarity = Common
   display_name = "Basalt"
-  buy_price = int 
-  sell_price = int
-  description = None
+  buy_price = None 
+  sell_price = None
+  description = "Bruhsalt"
   
 def get_y_section(y):
   if y <= 64 and y > 48:
