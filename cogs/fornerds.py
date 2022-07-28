@@ -23,9 +23,13 @@ class ForNerds(commands.Cog):
   @commands.is_owner()
   async def update_users(self, ctx):
     for i in db["users"]:
-      user_ = user.User(await self.bot.fetch_user(int(i)))
+      user_ = user.User(user=await self.bot.fetch_user(int(i)))
       counter = user_.update_default_dict()
     await ctx.send(f"Successfully updated data for {counter} users")
+
+  @commands.command()
+  async def test(self, ctx, number):
+    await ctx.send(user.calculate_level(int(number)))
 
 def setup(bot: commands.bot):
   bot.add_cog(ForNerds(bot))

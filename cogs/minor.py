@@ -4,7 +4,6 @@ from fuzzywuzzy import process
 from cogs.error import UserNotInDb
 from discord.ext import commands
 
-
 admin_users = ["895289342497538059", "808223912688746496", "836571495886880829"]#liv, dwizard, jadentrain69
 cooldowns = dict()
 
@@ -30,7 +29,7 @@ class Miner(commands.Cog):
 
     def check_if_in_db():
         async def predicate(ctx):
-          _user = user.User(ctx)
+          _user = user.User(ctx=ctx)
           if not _user.check_if_in_db():
             raise UserNotInDb(ctx.author)
           return True
@@ -46,13 +45,13 @@ class Miner(commands.Cog):
     @check_cooldown()
     @check_if_in_db()
     async def mine(self, ctx):
-      _user = user.User(ctx)
+      _user = user.User(ctx=ctx)
       await _user.mine_()
       
     
     @commands.command(name="returntobase", aliases=["rtb"])
     async def returntobase(self, ctx):
-        _user = user.User(ctx)
+        _user = user.User(ctx=ctx)
         if _user.return_to_base():
             await ctx.send("You Successfully returned to base!")
         else:
@@ -62,13 +61,13 @@ class Miner(commands.Cog):
     @commands.command(name="inventory", aliases=["inv"])
     @check_if_in_db()
     async def inventory(self, ctx):
-      _user = user.User(ctx)
+      _user = user.User(ctx=ctx)
       await _user.send_inventory_message()
 
     @commands.command(name="collections", aliases=["col", "collection"])
     @check_if_in_db()
     async def collections(self, ctx, *item):
-      _user = user.User(ctx)
+      _user = user.User(ctx=ctx)
       if item:
         pass
       else:
@@ -77,7 +76,7 @@ class Miner(commands.Cog):
 
     @commands.command(name="create account", aliases=["start", "create"])
     async def create_account(self, ctx):
-        _user = user.User(ctx)
+        _user = user.User(ctx=ctx)
         if _user.check_if_in_db():
             await ctx.send("You already have an account bro.")
         else:
@@ -89,7 +88,7 @@ class Miner(commands.Cog):
     @commands.command(name="delete account", aliases=["delete", "bai"])
     @check_if_in_db()
     async def delete_account(self, ctx):
-        _user = user.User(ctx)
+        _user = user.User(ctx=ctx)
         cfmbtn = discord.ui.Button(label="CONFIRM", style=discord.ButtonStyle.danger)
         cfmview = user.ViewTimeout(timeout=10, ctx=ctx)
         cfmview.add_item(cfmbtn)
@@ -110,7 +109,7 @@ class Miner(commands.Cog):
     @commands.command(name="settings", aliases = ["config","setting"])
     @check_if_in_db() 
     async def setting(self, ctx, *setting):
-      _user = user.User(ctx)
+      _user = user.User(ctx=ctx)
       if not setting:
         config = _user.get_user_data("configurations")
         embed = discord.Embed(title=f"{ctx.author.name}'s configurations")
@@ -141,4 +140,4 @@ class Miner(commands.Cog):
       pass
       
 def setup(bot: commands.bot):
-    bot.add_cog(Miner(bot))
+  bot.add_cog(Miner(bot))

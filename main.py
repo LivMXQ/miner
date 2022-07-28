@@ -14,8 +14,8 @@ bot = commands.Bot(command_prefix=os.getenv("PREFIX"), case_insensitive=True, in
 
 
 for filename in os.listdir('./cogs'):
-  if filename.endswith('.py') and filename != "__init__.py":
-    bot.load_extension(f'cogs.{filename[:-3]}')
+  if filename.endswith('.py') and filename != "__init__.py":    
+    bot.load_extension(f'cogs.{filename[:-3]}', store=False)
 
 
 @bot.event

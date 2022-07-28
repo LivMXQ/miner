@@ -5,8 +5,8 @@ class UserNotInDb(commands.CommandError):
     self.message = message
     super().__init__(self.message)
 
-class Error(commands.Cog):  
-  @commands.Cog.listener()
+class Error(commands.Cog):
+  """@commands.Cog.listener()
   async def on_command_error(self, ctx, error):
     if isinstance(error, commands.CommandNotFound):
       pass
@@ -38,7 +38,7 @@ class Error(commands.Cog):
     else:
       message = f"!Something went wrong while running the command ):"
       print(error, type(error))
-      await ctx.send(content=message)
+      await ctx.send(content=message)"""
       
 def setup(bot: commands.Bot):
   bot.add_cog(Error(bot))

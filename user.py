@@ -22,51 +22,26 @@ default_dictionary = {
   'pickaxe': pickle.dumps(pickaxe, 0).decode(), 
   "experience": 0, 
   'configurations': {'mining_direction': 'down', "inventory_key":"by_name"}, 
-  "story":0
+  "story":0,
+  "streak":0
   }
 
-def get_class(name, list, key="name"):
-  "returns the class with the name given within a list of classes"
-  if key == "name":
-    for i in list:
-      if i.__name__ == name:
-        return i
-    return
-  elif key == "display_name":
-    for i in list:
-      if i.display_name == name:
-        return i
-    return
-
-def get_all_users():
-  return db["users"]
-
-def get_all_items() -> list:
-  "returns a list of all the items"
-  item_list = []
-  for i in src.Item.__subclasses__():
-    for j in i.__subclasses__():
-      item_list.append(j)
-  return item_list
-
-def initialize_cooldowns(cooldowns_):
-  if db["users"]:
-    for i in db["users"]:
-      user_id = i
-      duration = 17.5
-      cooldowns_[user_id] = discord.ext.commands.CooldownMapping.from_cooldown(1, duration, discord.ext.commands.BucketType.user)  
-
 class User: 
-  def __init__(self, ctx):
+  def __init__(self, user=None, ctx=None):
     self.ctx = ctx
-    self.user = ctx.author
+    if user:
+      self.user = user
+    elif ctx:
+      self.user = ctx.author
+    else:
+      self.user = None
     self.data = self.get_user_data() #ONYL USE THIS TO READ DATA
 
-  def get_cooldown(self): #still working on this 
+  def get_cooldown(self):
     return 17
 
 
-  def get_multipler(self): #still working on this
+  def get_multipler(self): 
     return 1
 
   async def create_account(self):
@@ -74,9 +49,20 @@ class User:
     return True
 
   async def send_collection_message(self):
-    default = "Ore"
+    default = "Block"
     catagory = get_class(default, src.Item.__subclasses__())
     shop_view = ViewTimeout(ctx=self.ctx, timeout=20)
+
+    def collection_embed(catagory):
+      desc = []
+      for i in catagory.__subclasses__(): 
+        amount = 0
+        if i.__name__ in self.data["collection"]:
+          amount = self.data["collection"][i.__name__]
+        level = calculate_level(amount)
+        desc.append(f"{i.emoji_id} `{amount}/{src.collection_levels[level]}` **{i.display_name} {roman(level)}**")
+      embed = discord.Embed(title=catagory.__name__+" Collections", description="\n".join(desc), colour=bot_colour)
+      return embed
     
     class ShopSelect(discord.ui.Select):
       def __init__(self): 
@@ -84,11 +70,10 @@ class User:
 
       async def callback(self, interaction):
         catagory = get_class(self.values[0], src.Item.__subclasses__())
-        await interaction.response.edit_message(embed=catagory().collection_embed())    
-
+        await interaction.response.edit_message(embed=collection_embed(catagory))   
     shop_select = ShopSelect()
     shop_view.add_item(shop_select)
-    shop_view.message = await self.ctx.send(emebd=catagory().collection_embed(), view=shop_view)
+    shop_view.message = await self.ctx.send(embed=collection_embed(catagory), view=shop_view)
 
   async def mine_(self):
     y = self.get_user_data("y")
@@ -103,9 +88,7 @@ class User:
       embed.set_footer(text=f"new y-level ─ {new_y}") 
       await self.ctx.send(embed=embed)
       self.inventory_add(loot, multipler)
-      if self.collection_add(loot, multipler) == 1:
-        unlock_embed = discord.Embed(title="✨NEW COLLECTION UNLOCKED✨", description=loot.emoji_id + loot.display_name, colour=loot.rarity.id)
-        await self.ctx.send(embed=unlock_embed)
+      await self.collection_add(loot, multipler, self.ctx)
     elif choice == src.OtherEventLol:
       embed = discord.Embed(title=f"{self.user.name}'s event", color=discord.Colour.gold())
       await self.ctx.send(embed=embed)
@@ -193,13 +176,22 @@ class User:
     else:     
       db["users"][str(self.user.id)]["inventory"][_item] += amount
 
-  def collection_add(self, item, amount):
+  async def collection_add(self, item, amount, ctx):
     _item = item.__name__
-    if _item not in self.data["inventory"]:
-      db["users"][str(self.user.id)]["inventory"][_item] = amount
-      return 1
+    if _item not in self.data["collection"]:
+      db["users"][str(self.user.id)]["collection"][_item] = amount
+      unlock_embed = discord.Embed(title="✨ NEW COLLECTION UNLOCKED ✨", description=item.emoji_id + item.display_name, colour=item.rarity.id)
+      await self.ctx.send(embed=unlock_embed)
+      return 1   
     else:     
-      db["users"][str(self.user.id)]["inventory"][_item] += amount
+      oamount = self.data["collection"][_item]
+      olevel = calculate_level(oamount)
+      newlevel = calculate_level(oamount+amount)
+      db["users"][str(self.user.id)]["collection"][_item] += amount
+      if newlevel != olevel:
+        levelup_embed = discord.Embed(title="✨ COLLECTION LEVEL UP ✨", description=item.emoji_id+item.display_name+" "+roman(newlevel), colour=item.rarity.id)
+        await self.ctx.send(embed=levelup_embed)
+        return 2
       return 0
   
   def inventory_remove(self, item, amount):
@@ -230,19 +222,79 @@ class endinteractionbtn(discord.ui.Button):
 
 
 class ViewTimeout(discord.ui.View):
-    def __init__(self, ctx, timeout=10):
-      super().__init__(timeout=timeout)
-      self.inactive = False
-      self.ctx = ctx
+  def __init__(self, ctx, timeout=10):
+    super().__init__(timeout=timeout)
+    self.inactive = False
+    self.ctx = ctx
 
-    async def on_timeout(self):
-      if self.inactive == False:
-        self.disable_all_items()
-        await self.message.edit(view=self)
+  async def on_timeout(self):
+    if self.inactive == False:
+      self.disable_all_items()
+      await self.message.edit(view=self)
 
-    async def interaction_check(self, interaction: discord.Interaction):
-      if interaction.user != self.ctx.author:
-        await interaction.response.send_message("That's not your miner bro", ephemeral=True)
-        return False
-      else:
-        return True
+  async def interaction_check(self, interaction: discord.Interaction):
+    if interaction.user != self.ctx.author:
+      await interaction.response.send_message("That's not your miner bro", ephemeral=True)
+      return False
+    else:
+      return True
+
+def roman(number):
+  num = [1, 4, 5, 9, 10, 40, 50, 90,
+        100, 400, 500, 900, 1000]
+  sym = ["I", "IV", "V", "IX", "X", "XL",
+        "L", "XC", "C", "CD", "D", "CM", "M"]
+  i = 12
+  value = []
+  if number == 0:
+    return "0"  
+  while number:
+    div = number // num[i]
+    number %= num[i]
+  
+    while div:
+      value.append(sym[i])
+      div -= 1
+    i -= 1
+  return "".join(value)
+
+def calculate_level(number, num=src.collection_levels) -> int:
+  "return a level based on the total amount and the intervals"
+  level = 0
+
+  for i in num:
+    if number >= i:
+      level += 1
+    
+  return level
+
+def get_class(name, list, key="name"):
+  "returns the class with the name given within a list of classes"
+  if key == "name":
+    for i in list:
+      if i.__name__ == name:
+        return i
+    return
+  elif key == "display_name":
+    for i in list:
+      if i.display_name == name:
+        return i
+    return
+
+def get_all_users():
+  return db["users"]
+
+def get_all_items() -> list:
+  "returns a list of all the items"
+  item_list = []
+  for i in src.Item.__subclasses__():
+    for j in i.__subclasses__():
+      item_list.append(j)
+  return item_list
+
+def initialize_cooldowns(cooldowns_):
+  if db["users"]:
+    for i in db["users"]:
+      user_id = i
+      duration = 17.5
+      cooldowns_[user_id] = discord.ext.commands.CooldownMapping.from_cooldown(1, duration, discord.ext.commands.BucketType.user)  

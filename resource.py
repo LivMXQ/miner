@@ -40,10 +40,6 @@ class Special(Rarity):
   id = 14437965
 
 class Item():
-  def collection_embed(self):
-    embed = discord.Embed(title="Yay")
-    return embed
-
   def item_embed(self):
     desc = "\n> " + self.description + "\n"
     if self.buy_price:
@@ -422,7 +418,7 @@ Diamond: 78
   }
 }
 
-
+collection_levels = [5, 25, 55, 120, 250, 500, 800, 1250]
 
 """
 which means Fortune II gives 1.75x (13⁄4) drops on average, Fortune III gives 2.2x (21⁄5) drops on average, etc."""
