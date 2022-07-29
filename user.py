@@ -77,7 +77,6 @@ class User:
 
   async def mine_(self):
     y = self.get_user_data("y")
-    print(y)
     choice = random.choices([src.MineOreEvent, src.OtherEventLol], [93.716, 6.284])[0]
     if choice == src.MineOreEvent:
       ores, chances = src.get_dict_vlaues(src.loot_table[src.get_y_section(y)])
