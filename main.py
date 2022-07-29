@@ -34,6 +34,7 @@ async def on_connect():
   
 
 try:
+  keep_alive()
   bot.run(os.getenv('TOKEN'))
 except:
   os.system("kill 1")

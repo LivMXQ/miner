@@ -77,6 +77,7 @@ class User:
 
   async def mine_(self):
     y = self.get_user_data("y")
+    print(y)
     choice = random.choices([src.MineOreEvent, src.OtherEventLol], [93.716, 6.284])[0]
     if choice == src.MineOreEvent:
       ores, chances = src.get_dict_vlaues(src.loot_table[src.get_y_section(y)])
@@ -152,15 +153,19 @@ class User:
   def change_y(self) -> int:
     config = self.data["configurations"]
     y = self.data["y"]
+    number = random.randint(0,4)
     if config["mining_direction"] == "down":
-      db["users"][str(self.user.id)]["y"] = y - random.randint(0,4)
+      db["users"][str(self.user.id)]["y"] = y - number
+      new_y = y - number
     elif config["mining_direction"] == "up":
-      db["users"][str(self.user.id)]["y"] = y + random.randint(0,4)
-    new_y = self.data["y"]
+      db["users"][str(self.user.id)]["y"] = y + number
+      new_y = y + number
     if new_y > 64:
       db["users"][str(self.user.id)]["y"] = 64
+      y = 64
     if new_y < -64:
       db["users"][str(self.user.id)]["y"] = -64
+      y = -64
     return new_y - y
   
   def sort_inventory(self, key="by_name"):
