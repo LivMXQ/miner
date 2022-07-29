@@ -161,10 +161,10 @@ class User:
       new_y = y + number
     if new_y > 64:
       db["users"][str(self.user.id)]["y"] = 64
-      y = 64
+      new_y = 64
     if new_y < -64:
       db["users"][str(self.user.id)]["y"] = -64
-      y = -64
+      new_y = -64
     return new_y - y
   
   def sort_inventory(self, key="by_name"):
